@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using TaleWorlds.Core;
 using TaleWorlds.MountAndBlade;
 
 namespace BetterPikes
@@ -10,19 +9,6 @@ namespace BetterPikes
 
         public override void OnDeploymentFinished() => BetterPikesSubModule.HarmonyInstance.Patch(AccessTools.Method(typeof(BehaviorCharge), "CalculateCurrentOrder"), postfix: new HarmonyMethod(AccessTools.Method(typeof(BetterPikesBehaviorCharge), "Postfix")));
 
-        // Make pikemen drop their pike if they are hit by a melee weapon and their HP is below a certain limit.
-        public override void OnAgentHit(Agent affectedAgent, Agent affectorAgent, in MissionWeapon affectorWeapon, in Blow blow, in AttackCollisionData attackCollisionData)
-        {
-            if (affectedAgent.IsActive() && affectedAgent.IsHuman && !affectedAgent.IsMainAgent && affectedAgent.Health < affectedAgent.HealthLimit * BetterPikesSettings.Instance.MaxPikemanHealthPercentToDropPike && affectedAgent.WieldedWeapon.CurrentUsageItem?.WeaponLength >= 400 && affectorAgent.IsHuman && affectorWeapon.CurrentUsageItem != null && affectorWeapon.CurrentUsageItem.IsMeleeWeapon)
-            {
-                for (EquipmentIndex index = EquipmentIndex.WeaponItemBeginSlot; index < EquipmentIndex.ExtraWeaponSlot; index++)
-                {
-                    if (affectedAgent.Equipment[index].CurrentUsageItem == affectedAgent.WieldedWeapon.CurrentUsageItem)
-                    {
-                        affectedAgent.HandleDropWeapon(false, index);
-                    }
-                }
-            }
-        }
+        protected override void OnEndMission() => BetterPikesSubModule.HarmonyInstance.Unpatch(AccessTools.Method(typeof(BehaviorCharge), "CalculateCurrentOrder"), AccessTools.Method(typeof(BetterPikesBehaviorCharge), "Postfix"));
     }
 }

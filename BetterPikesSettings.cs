@@ -18,12 +18,8 @@ namespace BetterPikes
         [SettingPropertyGroup("Multipliers", GroupOrder = 0)]
         public int PikeDamageMultiplier { get; set; } = 10;
 
-        [SettingPropertyFloatingInteger("Minimum Pikemen in Pike Formation", 0.1f, 1.0f, "#0%", Order = 1, RequireRestart = false, HintText = "Minimum percentage of pikemen in a formation to be treated as a pike formation. Default is 50%.")]
+        [SettingPropertyFloatingInteger("Minimum Pikemen in Pike Formation", 0.5f, 1.0f, "#0%", Order = 1, RequireRestart = false, HintText = "Minimum percentage of pikemen in a formation to be treated as a pike formation. Default is 50%.")]
         [SettingPropertyGroup("Limits", GroupOrder = 1)]
         public float MinPikemenPercentInPikeFormation { get; set; } = 0.5f;
-
-        [SettingPropertyFloatingInteger("Maximum Pikeman HP to Drop Pike", 0.1f, 1.0f, "#0%", Order = 2, RequireRestart = false, HintText = "Maximum percentage of a pikeman's HP to make them drop their pike when hit by a melee weapon. Default is 50%.")]
-        [SettingPropertyGroup("Limits", GroupOrder = 1)]
-        public float MaxPikemanHealthPercentToDropPike { get; set; } = 0.5f;
     }
 }

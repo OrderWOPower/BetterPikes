@@ -11,9 +11,9 @@ namespace BetterPikes
         {
             if (weaponLength >= 400)
             {
-                int multiplier = BetterPikesSettings.Instance.PikeDamageMultiplier;
-                thrustDamageFactor *= multiplier;
-                thrustDamage *= multiplier;
+                BetterPikesSettings settings = BetterPikesSettings.Instance;
+                thrustDamageFactor *= settings.PikeDamageMultiplier;
+                thrustDamage *= settings.PikeDamageMultiplier;
             }
         }
     }
