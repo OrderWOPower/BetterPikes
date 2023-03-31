@@ -6,13 +6,14 @@ namespace BetterPikes
     [HarmonyPatch(typeof(BehaviorAdvance), "TickOccasionally")]
     public class BetterPikesBehaviorAdvance
     {
-        // Make a formation into a deep shield wall if the percentage of pikemen is above a certain limit.
+        // If the percentage of pikemen is above a certain limit, make the formation into a deep shield wall.
         public static void Postfix(BehaviorAdvance __instance)
         {
-            if (__instance.Formation.CountOfUnits > 1 && __instance.Formation.GetCountOfUnitsWithCondition(agent => agent.WieldedWeapon.CurrentUsageItem?.WeaponLength >= 400) >= __instance.Formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation)
+            Formation formation = __instance.Formation;
+            if (formation.CountOfUnits > 1 && formation.GetCountOfUnitsWithCondition(agent => agent.WieldedWeapon.CurrentUsageItem?.WeaponLength >= 400) >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation)
             {
-                __instance.Formation.ArrangementOrder = ArrangementOrder.ArrangementOrderShieldWall;
-                __instance.Formation.FormOrder = FormOrder.FormOrderDeep;
+                formation.ArrangementOrder = ArrangementOrder.ArrangementOrderShieldWall;
+                formation.FormOrder = FormOrder.FormOrderDeep;
             }
         }
     }
