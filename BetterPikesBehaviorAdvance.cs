@@ -10,7 +10,8 @@ namespace BetterPikes
         public static void Postfix(BehaviorAdvance __instance)
         {
             Formation formation = __instance.Formation;
-            if (formation.CountOfUnits > 1 && formation.GetCountOfUnitsWithCondition(agent => agent.WieldedWeapon.CurrentUsageItem?.WeaponLength >= 400) >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation)
+            bool isPikeFormation = formation.CountOfUnits > 1 && formation.GetCountOfUnitsWithCondition(agent => agent.WieldedWeapon.CurrentUsageItem?.WeaponLength >= 400) >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation;
+            if (isPikeFormation)
             {
                 formation.ArrangementOrder = ArrangementOrder.ArrangementOrderShieldWall;
                 formation.FormOrder = FormOrder.FormOrderDeep;

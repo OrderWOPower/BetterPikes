@@ -11,19 +11,19 @@ namespace BetterPikes
         {
             Formation formation = __instance.Formation;
             FormationQuerySystem closestEnemyFormation = formation.QuerySystem.ClosestEnemyFormation;
-            if (formation.CountOfUnits > 1 && formation.GetCountOfUnitsWithCondition(agent => agent.WieldedWeapon.CurrentUsageItem?.WeaponLength >= 400) >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation)
+            bool isPikeFormation = formation.CountOfUnits > 1 && formation.GetCountOfUnitsWithCondition(agent => agent.WieldedWeapon.CurrentUsageItem?.WeaponLength >= 400) >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation;
+            if (isPikeFormation)
             {
                 formation.ArrangementOrder = ArrangementOrder.ArrangementOrderShieldWall;
                 formation.FormOrder = FormOrder.FormOrderDeep;
-                foreach (Agent agent in formation.UnitsWithoutLooseDetachedOnes)
-                {
-                    Agent targetAgent = agent.GetTargetAgent();
-                    agent.SetScriptedFlags(targetAgent != null && !targetAgent.IsRunningAway && !targetAgent.IsMainAgent ? agent.GetScriptedFlags() | Agent.AIScriptedFrameFlags.DoNotRun : agent.GetScriptedFlags() & ~Agent.AIScriptedFrameFlags.DoNotRun);
-                }
                 if (closestEnemyFormation != null && !closestEnemyFormation.IsCavalryFormation)
                 {
                     ____currentOrder = MovementOrder.MovementOrderAdvance;
                 }
+            }
+            foreach (Agent agent in formation.UnitsWithoutLooseDetachedOnes)
+            {
+                agent.SetScriptedFlags(isPikeFormation && closestEnemyFormation?.Formation.CountOfUnits > 1 ? agent.GetScriptedFlags() | Agent.AIScriptedFrameFlags.DoNotRun : agent.GetScriptedFlags() & ~Agent.AIScriptedFrameFlags.DoNotRun);
             }
         }
     }
