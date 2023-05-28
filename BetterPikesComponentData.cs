@@ -10,11 +10,9 @@ namespace BetterPikes
         {
             if (weaponLength >= 400)
             {
-                BetterPikesSettings settings = BetterPikesSettings.Instance;
-
                 // Multiply the pike damage.
-                thrustDamageFactor *= settings.PikeDamageMultiplier;
-                thrustDamage *= settings.PikeDamageMultiplier;
+                thrustDamageFactor *= BetterPikesSettings.Instance.PikeDamageMultiplier;
+                thrustDamage *= BetterPikesSettings.Instance.PikeDamageMultiplier;
             }
         }
     }
