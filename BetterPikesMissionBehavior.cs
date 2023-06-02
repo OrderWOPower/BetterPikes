@@ -16,13 +16,23 @@ namespace BetterPikes
         {
             foreach (Team team in Mission.Teams)
             {
-                foreach (Formation formation in team.FormationsIncludingSpecialAndEmpty.Where(f => f.CountOfUnits > 1 && f.GetCountOfUnitsWithCondition(a => a.WieldedWeapon.CurrentUsageItem?.WeaponLength >= 400) >= f.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation))
+                foreach (Formation formation in team.FormationsIncludingSpecialAndEmpty.Where(f => f.CountOfUnits > 1))
                 {
+                    bool isPikeFormation = formation.GetCountOfUnitsWithCondition(a => a.WieldedWeapon.CurrentUsageItem?.WeaponLength >= 400) >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation;
+                    FormationQuerySystem closestEnemyFormation = formation.QuerySystem.ClosestEnemyFormation;
+
                     foreach (Agent agent in formation.UnitsWithoutLooseDetachedOnes)
                     {
-                        // If the pikemen's enemies are not routing, make the pikemen walk.
-                        agent.SetScriptedFlags(formation.QuerySystem.ClosestEnemyFormation?.Formation.CountOfUnits > 1 ? agent.GetScriptedFlags() | Agent.AIScriptedFrameFlags.DoNotRun : agent.GetScriptedFlags() & ~Agent.AIScriptedFrameFlags.DoNotRun);
-                        agent.SetMaximumSpeedLimit(agent.MaximumForwardUnlimitedSpeed, false);
+                        if (isPikeFormation && closestEnemyFormation?.Formation.CountOfUnits > 1)
+                        {
+                            // If the pikemen's enemies are not routing, make the pikemen walk.
+                            agent.SetScriptedFlags(agent.GetScriptedFlags() | Agent.AIScriptedFrameFlags.DoNotRun);
+                            agent.SetMaximumSpeedLimit(agent.MaximumForwardUnlimitedSpeed, false);
+                        }
+                        else
+                        {
+                            agent.SetScriptedFlags(agent.GetScriptedFlags() & ~Agent.AIScriptedFrameFlags.DoNotRun);
+                        }
                     }
                 }
             }
