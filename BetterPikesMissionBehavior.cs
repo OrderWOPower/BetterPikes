@@ -18,12 +18,12 @@ namespace BetterPikes
             {
                 foreach (Formation formation in team.FormationsIncludingSpecialAndEmpty.Where(f => f.CountOfUnits > 1))
                 {
-                    bool isPikeFormation = formation.GetCountOfUnitsWithCondition(a => a.WieldedWeapon.CurrentUsageItem?.WeaponLength >= 400) >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation;
-                    bool isEnemyFormationRouting = formation.QuerySystem.ClosestEnemyFormation?.Formation.CountOfUnits <= 1;
+                    bool isPikeFormation = formation.GetCountOfUnitsWithCondition(a => a.WieldedWeapon.CurrentUsageItem?.WeaponLength >= 400) >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation && !formation.IsLoose;
+                    bool hasAnyEnemyFormations = formation.HasAnyEnemyFormationsThatIsNotEmpty();
 
                     foreach (Agent agent in formation.UnitsWithoutLooseDetachedOnes)
                     {
-                        if (isPikeFormation && !isEnemyFormationRouting)
+                        if (isPikeFormation && hasAnyEnemyFormations)
                         {
                             // If the pikemen's enemies are not routing, make the pikemen walk.
                             agent.SetScriptedFlags(agent.GetScriptedFlags() | Agent.AIScriptedFrameFlags.DoNotRun);
