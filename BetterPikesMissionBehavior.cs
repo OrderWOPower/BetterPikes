@@ -37,7 +37,7 @@ namespace BetterPikes
                 {
                     bool shouldWalk = formation.CountOfUnits > 1 && formation.GetCountOfUnitsWithCondition(a => a.WieldedWeapon.CurrentUsageItem?.WeaponLength >= 400) >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation && formation.HasAnyEnemyFormationsThatIsNotEmpty() && !formation.IsLoose;
 
-                    foreach (Agent agent in formation.UnitsWithoutLooseDetachedOnes)
+                    foreach (Agent agent in formation.UnitsWithoutLooseDetachedOnes.Cast<Agent>())
                     {
                         if (shouldWalk)
                         {
