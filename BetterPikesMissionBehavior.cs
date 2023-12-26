@@ -31,24 +31,21 @@ namespace BetterPikes
 
         public override void OnMissionTick(float dt)
         {
-            foreach (Team team in Mission.Teams)
+            foreach (Formation formation in Mission.Teams.SelectMany(team => team.FormationsIncludingSpecialAndEmpty.Where(f => f.QuerySystem.IsInfantryFormation)))
             {
-                foreach (Formation formation in team.FormationsIncludingSpecialAndEmpty.Where(f => f.QuerySystem.IsInfantryFormation))
-                {
-                    bool shouldWalk = formation.CountOfUnits > 1 && formation.GetCountOfUnitsWithCondition(a => a.WieldedWeapon.CurrentUsageItem?.WeaponLength >= 400) >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation && formation.HasAnyEnemyFormationsThatIsNotEmpty() && !formation.IsLoose;
+                bool shouldWalk = formation.CountOfUnits > 1 && formation.GetCountOfUnitsWithCondition(a => a.WieldedWeapon.CurrentUsageItem?.WeaponLength >= 400) >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation && formation.HasAnyEnemyFormationsThatIsNotEmpty() && !formation.IsLoose;
 
-                    foreach (Agent agent in formation.UnitsWithoutLooseDetachedOnes)
+                foreach (Agent agent in formation.UnitsWithoutLooseDetachedOnes.Cast<Agent>())
+                {
+                    if (shouldWalk)
                     {
-                        if (shouldWalk)
-                        {
-                            // If the pikemen's enemies are not routing, make the pikemen walk.
-                            agent.SetScriptedFlags(agent.GetScriptedFlags() | Agent.AIScriptedFrameFlags.DoNotRun);
-                            agent.SetMaximumSpeedLimit(agent.MaximumForwardUnlimitedSpeed, false);
-                        }
-                        else
-                        {
-                            agent.SetScriptedFlags(agent.GetScriptedFlags() & ~Agent.AIScriptedFrameFlags.DoNotRun);
-                        }
+                        // If the pikemen's enemies are not routing, make the pikemen walk.
+                        agent.SetScriptedFlags(agent.GetScriptedFlags() | Agent.AIScriptedFrameFlags.DoNotRun);
+                        agent.SetMaximumSpeedLimit(agent.MaximumForwardUnlimitedSpeed, false);
+                    }
+                    else
+                    {
+                        agent.SetScriptedFlags(agent.GetScriptedFlags() & ~Agent.AIScriptedFrameFlags.DoNotRun);
                     }
                 }
             }
