@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<base xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" type="string">
+  <tags>
+    <tag language="English" />
+  </tags>
+  <strings>
+    <string id="BPrqKBOYqk" text="Multipliers" />
+    <string id="BPHWax9o9M" text="Limits" />
+    <string id="BPSWNvjeoU" text="Siege Battles" />
+    <string id="BPBSKLDLKc" text="Pike Damage" />
+    <string id="BP2TOhK7BM" text="Multiplier for pike damage. Default is 10." />
+    <string id="BPcC9MxnMc" text="Minimum Pikemen in Pike Formation" />
+    <string id="BPka6D5dyC" text="Minimum percentage of pikemen in a formation to be treated as a pike formation. Default is 50%." />
+    <string id="BP8UqKzzmC" text="Remove Pikes from Side" />
+    <string id="BPxKQet4oG" text="Which side to remove pikes from in siege battles. Default is Both." />
+    <string id="BPyjaAG9cm" text="None" />
+    <string id="BPtIuVae3C" text="Attacker" />
+    <string id="BP4nvUyZLd" text="Defender" />
+    <string id="BPEy4uJVvQ" text="Both" />
+  </strings>
+</base>
