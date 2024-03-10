@@ -4,18 +4,23 @@
     <tag language="简体中文" />
   </tags>
   <strings>
-    <string id="BPrqKBOYqk" text="乘数" />
-    <string id="BPHWax9o9M" text="限制" />
-    <string id="BPSWNvjeoU" text="围城战斗" />
-    <string id="BPBSKLDLKc" text="长矛伤害" />
-    <string id="BP2TOhK7BM" text="长矛伤害的乘数。默认为10。" />
-    <string id="BPcC9MxnMc" text="长矛编队中的最少长矛兵" />
-    <string id="BPka6D5dyC" text="编队被视为长矛编队中的最少长矛兵百分比。默认为50%。" />
-    <string id="BP8UqKzzmC" text="从方移除长矛" />
-    <string id="BPxKQet4oG" text="在围城战斗中从哪一方移除长矛。 默认为两者。" />
-    <string id="BPyjaAG9cm" text="无" />
-    <string id="BPtIuVae3C" text="攻击方" />
-    <string id="BP4nvUyZLd" text="防守方" />
-    <string id="BPEy4uJVvQ" text="两者" />
+    <string id="BetterPikes01" text="乘数" />
+    <string id="BetterPikes02" text="限制" />
+    <string id="BetterPikes03" text="格挡" />
+    <string id="BetterPikes04" text="围城战斗" />
+    <string id="BetterPikes05" text="长矛伤害" />
+    <string id="BetterPikes06" text="长矛伤害的乘数。默认为10。" />
+    <string id="BetterPikes07" text="长矛编队中的最少长矛兵" />
+    <string id="BetterPikes08" text="编队被视为长矛编队中的最少长矛兵百分比。默认为50%。" />
+    <string id="BetterPikes09" text="准备长矛的最少距离" />
+    <string id="BetterPikes10" text="长矛兵准备长矛时与附近敌人的最少距离。默认为50m。" />
+    <string id="BetterPikes11" text="长矛兵可以格挡" />
+    <string id="BetterPikes12" text="长矛兵可以用长矛格挡（不真实）。默认禁用。" />
+    <string id="BetterPikes13" text="从方移除长矛" />
+    <string id="BetterPikes14" text="在围城战斗中从哪一方移除长矛。默认为两者。" />
+    <string id="BetterPikes15" text="无" />
+    <string id="BetterPikes16" text="攻击方" />
+    <string id="BetterPikes17" text="防守方" />
+    <string id="BetterPikes18" text="两者" />
   </strings>
 </base>
