@@ -6,9 +6,9 @@ namespace BetterPikes
     [HarmonyPatch(typeof(WeaponComponentData), "Init")]
     public class BetterPikesComponentData
     {
-        public static void Prefix(int weaponLength, ref float thrustDamageFactor, ref int thrustDamage)
+        public static void Prefix(string itemUsage, ref float thrustDamageFactor, ref int thrustDamage)
         {
-            if (weaponLength >= 400)
+            if (itemUsage == "polearm_pike" || itemUsage == "polearm_bracing")
             {
                 // Multiply the pike damage.
                 thrustDamageFactor *= BetterPikesSettings.Instance.PikeDamageMultiplier;
