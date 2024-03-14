@@ -1,5 +1,4 @@
-﻿using HarmonyLib;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using TaleWorlds.Core;
 using TaleWorlds.MountAndBlade;
@@ -8,16 +7,16 @@ namespace BetterPikes
 {
     public class BetterPikesMissionBehavior : MissionBehavior
     {
-        private ActionIndexCache _readyThrustActionIndex, _readyOverswingActionIndex, _guardUpActionIndex;
-        private List<Agent> _readyPikemen;
+        private readonly ActionIndexCache _readyThrustActionIndex, _readyOverswingActionIndex, _guardUpActionIndex;
+        private readonly List<Agent> _readyPikemen;
 
         public override MissionBehaviorType BehaviorType => MissionBehaviorType.Other;
 
-        public override void AfterStart()
+        public BetterPikesMissionBehavior()
         {
             _readyThrustActionIndex = ActionIndexCache.Create("act_ready_thrust_staff");
             _readyOverswingActionIndex = ActionIndexCache.Create("act_ready_overswing_spear");
-            _guardUpActionIndex = ActionIndexCache.Create("act_guard_up_staff");
+            _guardUpActionIndex = ActionIndexCache.Create("act_guard_up_pike");
             _readyPikemen = new List<Agent>();
         }
 
@@ -30,7 +29,7 @@ namespace BetterPikes
             {
                 for (EquipmentIndex index = EquipmentIndex.WeaponItemBeginSlot; index < EquipmentIndex.ExtraWeaponSlot; index++)
                 {
-                    if (agent.Equipment[index].CurrentUsageItem?.ItemUsage == "polearm_pike")
+                    if (IsPike(agent.Equipment[index]))
                     {
                         // Remove pikes in siege battles.
                         agent.RemoveEquippedWeapon(index);
@@ -50,7 +49,7 @@ namespace BetterPikes
             foreach (Formation formation in Mission.Teams.SelectMany(team => team.FormationsIncludingSpecialAndEmpty.Where(f => f.QuerySystem.IsInfantryFormation)))
             {
                 FormationQuerySystem querySystem = formation.QuerySystem;
-                bool hasEnemy = formation.CountOfUnits > 1 && formation.GetCountOfUnitsWithCondition(a => a.WieldedWeapon.CurrentUsageItem?.ItemUsage == "polearm_pike") >= formation.CountOfUnits * settings.MinPikemenPercentInPikeFormation && formation.HasAnyEnemyFormationsThatIsNotEmpty() && !formation.IsLoose;
+                bool hasEnemy = formation.CountOfUnits > 1 && formation.GetCountOfUnitsWithCondition(a => IsPike(a.WieldedWeapon)) >= formation.CountOfUnits * settings.MinPikemenPercentInPikeFormation && formation.HasAnyEnemyFormationsThatIsNotEmpty() && !formation.IsLoose;
                 bool isEnemyNearby = hasEnemy && querySystem.AveragePosition.Distance(querySystem.ClosestEnemyFormation.AveragePosition) <= settings.MinDistanceToReadyPikes && !querySystem.ClosestEnemyFormation.IsCavalryFormation && !querySystem.ClosestEnemyFormation.IsRangedCavalryFormation;
 
                 foreach (Agent agent in formation.GetUnitsWithoutDetachedOnes())
@@ -66,8 +65,8 @@ namespace BetterPikes
                         agent.SetScriptedFlags(agent.GetScriptedFlags() & ~Agent.AIScriptedFrameFlags.DoNotRun);
                     }
 
-                    // If the pikemen are nearby enemies, make them ready their pikes in different positions.
-                    if (isEnemyNearby && agent.WieldedWeapon.CurrentUsageItem?.ItemUsage == "polearm_pike")
+                    // If the pikemen's enemies are nearby, make the pikemen ready their pikes in different positions.
+                    if (isEnemyNearby && IsPike(agent.WieldedWeapon) && !agent.IsMainAgent)
                     {
                         if (MBRandom.RandomFloat < 0.01f)
                         {
@@ -109,7 +108,7 @@ namespace BetterPikes
 
             foreach (Agent agent in Mission.Agents.Where(a => a.IsHuman))
             {
-                if (agent.WieldedWeapon.CurrentUsageItem?.ItemUsage == "polearm_pike" && !settings.CanPikemenBlock)
+                if (IsPike(agent.WieldedWeapon) && !settings.CanPikemenBlock)
                 {
                     agent.SetAgentFlags(agent.GetAgentFlags() & ~AgentFlag.CanDefend);
                 }
@@ -120,8 +119,6 @@ namespace BetterPikes
             }
         }
 
-        public override void OnDeploymentFinished() => BetterPikesSubModule.HarmonyInstance.Patch(AccessTools.Method(typeof(BehaviorCharge), "CalculateCurrentOrder"), postfix: new HarmonyMethod(AccessTools.Method(typeof(BetterPikesBehaviorCharge), "Postfix")));
-
-        protected override void OnEndMission() => BetterPikesSubModule.HarmonyInstance.Unpatch(AccessTools.Method(typeof(BehaviorCharge), "CalculateCurrentOrder"), AccessTools.Method(typeof(BetterPikesBehaviorCharge), "Postfix"));
+        private bool IsPike(MissionWeapon weapon) => weapon.CurrentUsageItem?.ItemUsage == "polearm_pike";
     }
 }

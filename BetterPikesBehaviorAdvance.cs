@@ -12,7 +12,7 @@ namespace BetterPikes
 
             if (formation.CountOfUnits > 1 && formation.GetCountOfUnitsWithCondition(agent => agent.WieldedWeapon.CurrentUsageItem?.ItemUsage == "polearm_pike") >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation)
             {
-                // If the percentage of pikemen is above a certain limit, make the formation into a deep shield wall.
+                // If the percentage of pikemen is above a certain limit, make the formation form a deep shield wall.
                 formation.ArrangementOrder = ArrangementOrder.ArrangementOrderShieldWall;
                 formation.FormOrder = FormOrder.FormOrderDeep;
             }
