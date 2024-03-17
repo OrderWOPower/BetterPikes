@@ -15,5 +15,8 @@
     <action type="act_idle_pike_4" animation="troop_stand_pike_4" alternative_group="idle_pike" />
     <action type="act_idle_pike_5" animation="troop_stand_pike_5" alternative_group="idle_pike" />
     <action type="act_idle_pike_6" animation="troop_stand_pike_6" alternative_group="idle_pike" />
+    <action type="act_ready_thrust_pike" animation="ready_thrust_staff" />
+    <action type="act_ready_overswing_pike" animation="ready_overswing_spear" />
+    <action type="act_guard_up_pike" animation="guard_up_pike" />
   </action_set>
 </action_sets>
