@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using HarmonyLib;
+using System.Collections.Generic;
 using System.Linq;
 using TaleWorlds.Core;
 using TaleWorlds.MountAndBlade;
 
 namespace BetterPikes
 {
+    [HarmonyPatch(typeof(OrderController), "SetOrder")]
     public class BetterPikesMissionBehavior : MissionBehavior
     {
         private readonly ActionIndexCache _readyThrustActionIndex, _readyOverswingActionIndex, _guardUpActionIndex;
@@ -75,9 +77,9 @@ namespace BetterPikes
                         agent.SetScriptedFlags(agent.GetScriptedFlags() & ~Agent.AIScriptedFrameFlags.DoNotRun);
                     }
 
-                    if (MBRandom.RandomFloat < 0.1f)
+                    if (isEnemyNearby && IsPike(agent.WieldedWeapon) && !agent.IsMainAgent)
                     {
-                        if (isEnemyNearby && IsPike(agent.WieldedWeapon) && !agent.IsMainAgent)
+                        if (MBRandom.RandomFloat < 0.2f)
                         {
                             agent.GetFormationFileAndRankInfo(out _, out int rankIndex);
 
@@ -107,12 +109,12 @@ namespace BetterPikes
                                 }
                             }
                         }
-                        else
+                    }
+                    else
+                    {
+                        if (currentAction == _readyThrustActionIndex || currentAction == _readyOverswingActionIndex || currentAction == _guardUpActionIndex)
                         {
-                            if (currentAction == _readyThrustActionIndex || currentAction == _readyOverswingActionIndex || currentAction == _guardUpActionIndex)
-                            {
-                                agent.SetActionChannel(1, ActionIndexCache.act_none, true);
-                            }
+                            agent.SetActionChannel(1, ActionIndexCache.act_none, true);
                         }
                     }
                 }
@@ -122,9 +124,11 @@ namespace BetterPikes
             {
                 agent.SetAgentFlags(IsPike(agent.WieldedWeapon) && !settings.CanPikemenBlock ? agent.GetAgentFlags() & ~AgentFlag.CanDefend : agent.GetAgentFlags() | AgentFlag.CanDefend);
 
-                if (_glitchTicks.TryGetValue(agent, out int numOfTicks) && IsPike(agent.WieldedWeapon))
+                if (_glitchTicks.TryGetValue(agent, out int numOfTicks) && IsPike(agent.WieldedWeapon) && agent.ImmediateEnemy == null)
                 {
-                    if (numOfTicks < 60 && agent.GetCurrentActionProgress(1) < 0.1f && (agent.GetCurrentActionType(1) == Agent.ActionCodeType.ReadyMelee || agent.GetCurrentActionType(1) == Agent.ActionCodeType.Guard))
+                    Agent.ActionCodeType currentActionType = agent.GetCurrentActionType(1);
+
+                    if (numOfTicks < 60 && agent.GetCurrentActionProgress(1) < 0.1f && (currentActionType == Agent.ActionCodeType.ReadyMelee || currentActionType == Agent.ActionCodeType.Guard))
                     {
                         _glitchTicks[agent]++;
                     }
@@ -132,7 +136,14 @@ namespace BetterPikes
                     {
                         if (numOfTicks >= 60)
                         {
-                            agent.TryToSheathWeaponInHand(Agent.HandIndex.MainHand, Agent.WeaponWieldActionType.Instant);
+                            agent.SetCurrentActionProgress(1, 1f);
+
+                            if (currentActionType != Agent.ActionCodeType.EquipUnequip)
+                            {
+                                agent.TryToSheathWeaponInHand(Agent.HandIndex.MainHand, Agent.WeaponWieldActionType.Instant);
+
+                                continue;
+                            }
                         }
 
                         _glitchTicks[agent] = 0;
