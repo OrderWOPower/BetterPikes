@@ -55,9 +55,9 @@ namespace BetterPikes
         {
             BetterPikesSettings settings = BetterPikesSettings.Instance;
 
-            foreach (Formation formation in Mission.Teams.SelectMany(team => team.FormationsIncludingSpecialAndEmpty.Where(f => f.QuerySystem.IsInfantryFormation)))
+            foreach (Formation formation in Mission.Teams.SelectMany(team => team.FormationsIncludingSpecialAndEmpty.Where(f => f.QuerySystem.IsInfantryFormation && f.FiringOrder != FiringOrder.FiringOrderHoldYourFire)))
             {
-                bool hasEnemy = formation.HasAnyEnemyFormationsThatIsNotEmpty() && formation.GetCountOfUnitsWithCondition(a => IsPike(a.WieldedWeapon)) >= formation.CountOfUnits * settings.MinPikemenPercentInPikeFormation && !formation.IsLoose && formation.FiringOrder != FiringOrder.FiringOrderHoldYourFire;
+                bool hasEnemy = formation.HasAnyEnemyFormationsThatIsNotEmpty() && formation.GetCountOfUnitsWithCondition(a => IsPike(a.WieldedWeapon)) >= formation.CountOfUnits * settings.MinPikemenPercentInPikeFormation && !formation.IsLoose;
                 bool isEnemyNearby = hasEnemy && formation.QuerySystem.AveragePosition.Distance(formation.QuerySystem.ClosestEnemyFormation.AveragePosition) <= settings.MinDistanceToReadyPikes;
 
                 foreach (Agent agent in formation.GetUnitsWithoutDetachedOnes())
@@ -75,9 +75,9 @@ namespace BetterPikes
                         agent.SetScriptedFlags(agent.GetScriptedFlags() & ~Agent.AIScriptedFrameFlags.DoNotRun);
                     }
 
-                    if (isEnemyNearby && IsPike(agent.WieldedWeapon) && !agent.IsMainAgent)
+                    if (MBRandom.RandomFloat < 0.2f)
                     {
-                        if (MBRandom.RandomFloat < 0.2f)
+                        if (isEnemyNearby && IsPike(agent.WieldedWeapon) && !agent.IsMainAgent)
                         {
                             agent.GetFormationFileAndRankInfo(out _, out int rankIndex);
 
@@ -107,12 +107,12 @@ namespace BetterPikes
                                 }
                             }
                         }
-                    }
-                    else
-                    {
-                        if (currentAction == _readyThrustActionIndex || currentAction == _readyOverswingActionIndex || currentAction == _guardUpActionIndex)
+                        else
                         {
-                            agent.SetActionChannel(1, ActionIndexCache.act_none, true);
+                            if (currentAction == _readyThrustActionIndex || currentAction == _readyOverswingActionIndex || currentAction == _guardUpActionIndex)
+                            {
+                                agent.SetActionChannel(1, ActionIndexCache.act_none, true);
+                            }
                         }
                     }
                 }
