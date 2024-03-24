@@ -122,7 +122,7 @@ namespace BetterPikes
             {
                 agent.SetAgentFlags(IsPike(agent.WieldedWeapon) && !settings.CanPikemenBlock ? agent.GetAgentFlags() & ~AgentFlag.CanDefend : agent.GetAgentFlags() | AgentFlag.CanDefend);
 
-                if (_glitchTicks.TryGetValue(agent, out int numOfTicks) && IsPike(agent.WieldedWeapon) && agent.ImmediateEnemy == null)
+                if (_glitchTicks.TryGetValue(agent, out int numOfTicks) && IsPike(agent.WieldedWeapon))
                 {
                     Agent.ActionCodeType currentActionType = agent.GetCurrentActionType(1);
 
