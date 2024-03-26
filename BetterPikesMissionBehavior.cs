@@ -50,7 +50,7 @@ namespace BetterPikes
                 bool hasEnemy = formation.HasAnyEnemyFormationsThatIsNotEmpty() && formation.GetCountOfUnitsWithCondition(a => IsPike(a.WieldedWeapon)) >= formation.CountOfUnits * settings.MinPikemenPercentInPikeFormation && !formation.IsLoose;
                 bool isEnemyNearby = hasEnemy && formation.QuerySystem.AveragePosition.Distance(formation.QuerySystem.ClosestEnemyFormation.AveragePosition) <= settings.MinDistanceToReadyPikes;
 
-                foreach (Agent agent in formation.GetUnitsWithoutDetachedOnes().Where(a => !a.IsMainAgent))
+                foreach (Agent agent in formation.GetUnitsWithoutDetachedOnes())
                 {
                     if (hasEnemy)
                     {
@@ -63,44 +63,47 @@ namespace BetterPikes
                         agent.SetScriptedFlags(agent.GetScriptedFlags() & ~Agent.AIScriptedFrameFlags.DoNotRun);
                     }
 
-                    if (MBRandom.RandomFloat < 0.2f)
+                    if (!agent.IsMainAgent)
                     {
-                        ActionIndexCache currentAction = agent.GetCurrentAction(1);
-
-                        if (isEnemyNearby && IsPike(agent.WieldedWeapon))
+                        if (MBRandom.RandomFloat < 0.2f)
                         {
-                            if (currentAction == ActionIndexCache.act_none)
-                            {
-                                agent.GetFormationFileAndRankInfo(out _, out int rankIndex);
+                            ActionIndexCache currentAction = agent.GetCurrentAction(1);
 
-                                // If the pikemen's enemies are nearby, make the pikemen ready their pikes in different positions.
-                                if (rankIndex < 4)
+                            if (isEnemyNearby && IsPike(agent.WieldedWeapon))
+                            {
+                                if (currentAction == ActionIndexCache.act_none)
                                 {
-                                    // Make the first four ranks ready their pikes for an underarm thrust.
-                                    agent.SetActionChannel(1, _readyThrustActionIndex, startProgress: MBRandom.RandomFloat);
+                                    agent.GetFormationFileAndRankInfo(out _, out int rankIndex);
+
+                                    // If the pikemen's enemies are nearby, make the pikemen ready their pikes in different positions.
+                                    if (rankIndex < 4)
+                                    {
+                                        // Make the first four ranks ready their pikes for an underarm thrust.
+                                        agent.SetActionChannel(1, _readyThrustActionIndex, startProgress: MBRandom.RandomFloat);
+                                    }
+                                    else if (rankIndex == 4)
+                                    {
+                                        // Make the fifth rank ready their pikes for an overhead thrust.
+                                        agent.SetActionChannel(1, _readyOverswingActionIndex, startProgress: MBRandom.RandomFloat);
+                                    }
+                                    else
+                                    {
+                                        // Make the sixth rank onwards ready their pikes at an angle.
+                                        agent.SetActionChannel(1, _guardUpActionIndex, startProgress: MBRandom.RandomFloat);
+                                    }
                                 }
-                                else if (rankIndex == 4)
+                            }
+                            else
+                            {
+                                if (currentAction == _readyThrustActionIndex || currentAction == _readyOverswingActionIndex || currentAction == _guardUpActionIndex)
                                 {
-                                    // Make the fifth rank ready their pikes for an overhead thrust.
-                                    agent.SetActionChannel(1, _readyOverswingActionIndex, startProgress: MBRandom.RandomFloat);
-                                }
-                                else
-                                {
-                                    // Make the sixth rank onwards ready their pikes at an angle.
-                                    agent.SetActionChannel(1, _guardUpActionIndex, startProgress: MBRandom.RandomFloat);
+                                    agent.SetActionChannel(1, ActionIndexCache.act_none, ignorePriority: true, blendInPeriod: 0.5f);
                                 }
                             }
                         }
-                        else
-                        {
-                            if (currentAction == _readyThrustActionIndex || currentAction == _readyOverswingActionIndex || currentAction == _guardUpActionIndex)
-                            {
-                                agent.SetActionChannel(1, ActionIndexCache.act_none, ignorePriority: true, blendInPeriod: 0.5f);
-                            }
-                        }
+
+                        agent.SetAgentFlags(agent.ImmediateEnemy != null && !agent.ImmediateEnemy.IsRunningAway && IsPike(agent.WieldedWeapon) && !settings.CanPikemenBlock ? agent.GetAgentFlags() & ~AgentFlag.CanDefend : agent.GetAgentFlags() | AgentFlag.CanDefend);
                     }
-
-                    agent.SetAgentFlags(agent.ImmediateEnemy != null && !agent.ImmediateEnemy.IsRunningAway && IsPike(agent.WieldedWeapon) && !settings.CanPikemenBlock ? agent.GetAgentFlags() & ~AgentFlag.CanDefend : agent.GetAgentFlags() | AgentFlag.CanDefend);
                 }
             }
         }
