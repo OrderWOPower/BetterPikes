@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Runtime;
 using TaleWorlds.Core;
 using TaleWorlds.MountAndBlade;
 
@@ -38,6 +39,7 @@ namespace BetterPikes
         public override void OnAgentPanicked(Agent affectedAgent)
         {
             affectedAgent.SetScriptedFlags(affectedAgent.GetScriptedFlags() & ~Agent.AIScriptedFrameFlags.DoNotRun);
+            affectedAgent.SetAgentFlags(affectedAgent.GetAgentFlags() | AgentFlag.CanDefend);
             affectedAgent.SetActionChannel(1, ActionIndexCache.act_none, ignorePriority: true, blendInPeriod: 0.5f);
         }
 
