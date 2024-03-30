@@ -105,7 +105,7 @@ namespace BetterPikes
                     }
 
                     // Disable blocking for pikemen.
-                    agent.SetAgentFlags(IsPike(agent.WieldedWeapon) && agent.ImmediateEnemy != null && !agent.ImmediateEnemy.IsRunningAway && !agent.IsMainAgent && !settings.CanPikemenBlock ? agent.GetAgentFlags() & ~AgentFlag.CanDefend : agent.GetAgentFlags() | AgentFlag.CanDefend);
+                    agent.SetAgentFlags(MBRandom.RandomFloat >= 0.01f && IsPike(agent.WieldedWeapon) && agent.ImmediateEnemy != null && !agent.ImmediateEnemy.IsRunningAway && !agent.IsMainAgent && !settings.CanPikemenBlock ? agent.GetAgentFlags() & ~AgentFlag.CanDefend : agent.GetAgentFlags() | AgentFlag.CanDefend);
                 }
             }
         }
