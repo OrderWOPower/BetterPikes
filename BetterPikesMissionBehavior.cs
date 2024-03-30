@@ -54,7 +54,7 @@ namespace BetterPikes
                 bool hasEnemy = formation.HasAnyEnemyFormationsThatIsNotEmpty() && formation.GetCountOfUnitsWithCondition(a => IsPike(a.WieldedWeapon)) >= formation.CountOfUnits * settings.MinPikemenPercentInPikeFormation && formation.FiringOrder != FiringOrder.FiringOrderHoldYourFire && !formation.IsLoose;
                 bool isEnemyNearby = hasEnemy && formation.QuerySystem.AveragePosition.Distance(formation.QuerySystem.ClosestEnemyFormation.AveragePosition) <= settings.MinDistanceToReadyPikes;
 
-                foreach (Agent agent in formation.GetUnitsWithoutDetachedOnes().Where(a => a.IsHuman))
+                foreach (Agent agent in formation.GetUnitsWithoutDetachedOnes().Concat(formation.DetachedUnits).Where(a => a.IsHuman))
                 {
                     if (hasEnemy)
                     {
@@ -94,11 +94,6 @@ namespace BetterPikes
                                     agent.SetActionChannel(1, _guardUpActionIndex, startProgress: MBRandom.RandomFloat);
                                 }
                             }
-
-                            if (!settings.CanPikemenBlock)
-                            {
-                                agent.SetAgentFlags(agent.GetAgentFlags() & ~AgentFlag.CanDefend);
-                            }
                         }
                         else
                         {
@@ -106,10 +101,11 @@ namespace BetterPikes
                             {
                                 agent.SetActionChannel(1, ActionIndexCache.act_none, ignorePriority: true, blendInPeriod: 0.5f);
                             }
-
-                            agent.SetAgentFlags(agent.GetAgentFlags() | AgentFlag.CanDefend);
                         }
                     }
+
+                    // Disable blocking for pikemen.
+                    agent.SetAgentFlags(IsPike(agent.WieldedWeapon) && agent.ImmediateEnemy != null && !agent.ImmediateEnemy.IsRunningAway && !agent.IsMainAgent && !settings.CanPikemenBlock ? agent.GetAgentFlags() & ~AgentFlag.CanDefend : agent.GetAgentFlags() | AgentFlag.CanDefend);
                 }
             }
         }
