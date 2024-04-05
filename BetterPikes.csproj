@@ -64,6 +64,7 @@
   <ItemGroup>
     <Compile Include="BetterPikesBehaviorAdvance.cs" />
     <Compile Include="BetterPikesBehaviorCharge.cs" />
+    <Compile Include="BetterPikesCombatMechanicsHelper.cs" />
     <Compile Include="BetterPikesComponentData.cs" />
     <Compile Include="BetterPikesMissionBehavior.cs" />
     <Compile Include="BetterPikesSettings.cs" />
