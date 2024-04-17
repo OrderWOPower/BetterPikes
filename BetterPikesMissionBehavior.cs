@@ -7,6 +7,7 @@ namespace BetterPikes
     public class BetterPikesMissionBehavior : MissionBehavior
     {
         private readonly ActionIndexCache _readyThrustActionIndex, _readyOverswingActionIndex, _guardUpActionIndex;
+        private readonly Timer _blockTimer;
 
         public override MissionBehaviorType BehaviorType => MissionBehaviorType.Other;
 
@@ -15,6 +16,7 @@ namespace BetterPikes
             _readyThrustActionIndex = ActionIndexCache.Create("act_ready_thrust_pike");
             _readyOverswingActionIndex = ActionIndexCache.Create("act_ready_overswing_pike");
             _guardUpActionIndex = ActionIndexCache.Create("act_guard_up_pike");
+            _blockTimer = new Timer(0f, 1f, true);
         }
 
         public override void OnAgentBuild(Agent agent, Banner banner)
@@ -39,8 +41,8 @@ namespace BetterPikes
         {
             if (affectedAgent.IsHuman)
             {
-                affectedAgent.SetScriptedFlags(affectedAgent.GetScriptedFlags() & ~Agent.AIScriptedFrameFlags.DoNotRun);
                 affectedAgent.SetAgentFlags(affectedAgent.GetAgentFlags() | AgentFlag.CanDefend);
+                affectedAgent.SetScriptedFlags(affectedAgent.GetScriptedFlags() & ~Agent.AIScriptedFrameFlags.DoNotRun);
                 affectedAgent.SetActionChannel(1, ActionIndexCache.act_none, ignorePriority: true, blendInPeriod: 0.5f);
             }
         }
@@ -49,15 +51,20 @@ namespace BetterPikes
         {
             BetterPikesSettings settings = BetterPikesSettings.Instance;
 
-            foreach (Formation formation in Mission.Teams.SelectMany(team => team.FormationsIncludingSpecialAndEmpty.Where(f => f.QuerySystem.IsInfantryFormation)))
+            foreach (Formation formation in Mission.Teams.SelectMany(team => team.FormationsIncludingSpecialAndEmpty.Where(f => f.CountOfUnits > 0 && f.QuerySystem.IsInfantryFormation)))
             {
-                bool isCircle = formation.ArrangementOrder == ArrangementOrder.ArrangementOrderCircle;
-                bool hasEnemy = formation.HasAnyEnemyFormationsThatIsNotEmpty() && formation.GetCountOfUnitsWithCondition(a => IsPike(a.WieldedWeapon)) >= formation.CountOfUnits * settings.MinPikemenPercentInPikeFormation && formation.FiringOrder != FiringOrder.FiringOrderHoldYourFire && (!formation.IsLoose || isCircle);
-                bool isEnemyNearby = hasEnemy && (formation.QuerySystem.AveragePosition.Distance(formation.QuerySystem.ClosestEnemyFormation.AveragePosition) <= settings.MinDistanceToReadyPikes || isCircle);
+                bool hasEnemy = formation.HasAnyEnemyFormationsThatIsNotEmpty() && formation.GetCountOfUnitsWithCondition(a => IsPike(a.WieldedWeapon)) >= formation.CountOfUnits * settings.MinPikemenPercentInPikeFormation && formation.FiringOrder != FiringOrder.FiringOrderHoldYourFire;
+                bool isEnemyNearby = hasEnemy && formation.QuerySystem.AveragePosition.Distance(formation.QuerySystem.ClosestEnemyFormation.AveragePosition) <= settings.MinDistanceToReadyPikes, isLoose = formation.IsLoose;
+                float num = formation.QuerySystem.FormationIntegrityData.AverageMaxUnlimitedSpeedExcludeFarAgents * 3f;
 
                 foreach (Agent agent in formation.GetUnitsWithoutDetachedOnes().Concat(formation.DetachedUnits).Where(a => a.IsHuman))
                 {
-                    if (hasEnemy && !isCircle)
+                    float num2 = agent.Position.AsVec2.Distance(formation.GetCurrentGlobalPositionOfUnit(agent, true));
+
+                    // Disable blocking for pikemen.
+                    agent.SetAgentFlags(!_blockTimer.Check(Mission.CurrentTime) && IsPike(agent.WieldedWeapon) && !agent.IsMainAgent && !settings.CanPikemenBlock ? agent.GetAgentFlags() & ~AgentFlag.CanDefend : agent.GetAgentFlags() | AgentFlag.CanDefend);
+
+                    if (hasEnemy && !isLoose && num2 < num)
                     {
                         // If the pikemen have enemies, make the pikemen walk.
                         agent.SetScriptedFlags(agent.GetScriptedFlags() | Agent.AIScriptedFrameFlags.DoNotRun);
@@ -72,7 +79,7 @@ namespace BetterPikes
                     {
                         ActionIndexCache currentAction = agent.GetCurrentAction(1);
 
-                        if (isEnemyNearby && IsPike(agent.WieldedWeapon) && !agent.IsMainAgent)
+                        if (isEnemyNearby && IsPike(agent.WieldedWeapon) && !agent.IsMainAgent && num2 < num)
                         {
                             if (currentAction != _readyThrustActionIndex && currentAction != _readyOverswingActionIndex && currentAction != _guardUpActionIndex)
                             {
@@ -104,9 +111,6 @@ namespace BetterPikes
                             }
                         }
                     }
-
-                    // Disable blocking for pikemen.
-                    agent.SetAgentFlags(MBRandom.RandomFloat >= 0.001f && IsPike(agent.WieldedWeapon) && agent.ImmediateEnemy != null && !agent.ImmediateEnemy.IsRunningAway && !agent.IsMainAgent && !settings.CanPikemenBlock ? agent.GetAgentFlags() & ~AgentFlag.CanDefend : agent.GetAgentFlags() | AgentFlag.CanDefend);
                 }
             }
         }

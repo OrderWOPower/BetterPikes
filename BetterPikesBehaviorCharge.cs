@@ -21,10 +21,7 @@ namespace BetterPikes
                     // If the percentage of pikemen is above a certain limit, make the formation form a deep shield wall.
                     formation.ArrangementOrder = ArrangementOrder.ArrangementOrderShieldWall;
                     formation.FormOrder = FormOrder.FormOrderDeep;
-                    // If the formation's closest enemy formation is not cavalry, make the formation advance.
-                    AccessTools.PropertySetter(typeof(BehaviorComponent), "CurrentOrder").Invoke(__instance, new object[] { MovementOrder.MovementOrderAdvance });
-
-                    __instance.Formation.SetMovementOrder(__instance.CurrentOrder);
+                    formation.SetMovementOrder(MovementOrder.MovementOrderAdvance);
                 }
 
                 if (formation.ArrangementOrder == ArrangementOrder.ArrangementOrderCircle)
