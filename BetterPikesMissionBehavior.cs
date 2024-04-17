@@ -64,7 +64,7 @@ namespace BetterPikes
                     // Disable blocking for pikemen.
                     agent.SetAgentFlags(!_blockTimer.Check(Mission.CurrentTime) && IsPike(agent.WieldedWeapon) && !agent.IsMainAgent && !settings.CanPikemenBlock ? agent.GetAgentFlags() & ~AgentFlag.CanDefend : agent.GetAgentFlags() | AgentFlag.CanDefend);
 
-                    if (hasEnemy && !isLoose && num2 < num)
+                    if (hasEnemy && !isLoose && num2 < num * 2f)
                     {
                         // If the pikemen have enemies, make the pikemen walk.
                         agent.SetScriptedFlags(agent.GetScriptedFlags() | Agent.AIScriptedFrameFlags.DoNotRun);
