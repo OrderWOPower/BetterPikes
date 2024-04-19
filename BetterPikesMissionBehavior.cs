@@ -7,7 +7,6 @@ namespace BetterPikes
     public class BetterPikesMissionBehavior : MissionBehavior
     {
         private readonly ActionIndexCache _readyThrustActionIndex, _readyOverswingActionIndex, _guardUpActionIndex;
-        private readonly Timer _blockTimer;
 
         public override MissionBehaviorType BehaviorType => MissionBehaviorType.Other;
 
@@ -16,7 +15,6 @@ namespace BetterPikes
             _readyThrustActionIndex = ActionIndexCache.Create("act_ready_thrust_pike");
             _readyOverswingActionIndex = ActionIndexCache.Create("act_ready_overswing_pike");
             _guardUpActionIndex = ActionIndexCache.Create("act_guard_up_pike");
-            _blockTimer = new Timer(0f, 1f, true);
         }
 
         public override void OnAgentBuild(Agent agent, Banner banner)
@@ -41,7 +39,6 @@ namespace BetterPikes
         {
             if (affectedAgent.IsHuman)
             {
-                affectedAgent.SetAgentFlags(affectedAgent.GetAgentFlags() | AgentFlag.CanDefend);
                 affectedAgent.SetScriptedFlags(affectedAgent.GetScriptedFlags() & ~Agent.AIScriptedFrameFlags.DoNotRun);
                 affectedAgent.SetActionChannel(1, ActionIndexCache.act_none, ignorePriority: true, blendInPeriod: 0.5f);
             }
@@ -60,9 +57,6 @@ namespace BetterPikes
                 foreach (Agent agent in formation.GetUnitsWithoutDetachedOnes().Concat(formation.DetachedUnits).Where(a => a.IsHuman))
                 {
                     float num2 = agent.Position.AsVec2.Distance(formation.GetCurrentGlobalPositionOfUnit(agent, true));
-
-                    // Disable blocking for pikemen.
-                    agent.SetAgentFlags(!_blockTimer.Check(Mission.CurrentTime) && IsPike(agent.WieldedWeapon) && !agent.IsMainAgent && !settings.CanPikemenBlock ? agent.GetAgentFlags() & ~AgentFlag.CanDefend : agent.GetAgentFlags() | AgentFlag.CanDefend);
 
                     if (hasEnemy && !isLoose && num2 < num * 2f)
                     {
@@ -110,6 +104,12 @@ namespace BetterPikes
                                 agent.SetActionChannel(1, ActionIndexCache.act_none, ignorePriority: true, blendInPeriod: 0.5f);
                             }
                         }
+                    }
+
+                    // Disable blocking for pikemen.
+                    if (IsPike(agent.WieldedWeapon) && (agent.GetCurrentActionStage(1) == Agent.ActionStage.Defend || agent.GetCurrentActionStage(1) == Agent.ActionStage.DefendParry) && !agent.IsMainAgent && !settings.CanPikemenBlock)
+                    {
+                        agent.SetActionChannel(1, ActionIndexCache.act_none, ignorePriority: true, blendInPeriod: -1f);
                     }
                 }
             }
