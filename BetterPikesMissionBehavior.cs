@@ -39,6 +39,7 @@ namespace BetterPikes
         {
             if (affectedAgent.IsHuman)
             {
+                affectedAgent.SetAgentFlags(affectedAgent.GetAgentFlags() | AgentFlag.CanDefend);
                 affectedAgent.SetScriptedFlags(affectedAgent.GetScriptedFlags() & ~Agent.AIScriptedFrameFlags.DoNotRun);
                 affectedAgent.SetActionChannel(1, ActionIndexCache.act_none, ignorePriority: true, blendInPeriod: 0.5f);
             }
@@ -51,14 +52,22 @@ namespace BetterPikes
             foreach (Formation formation in Mission.Teams.SelectMany(team => team.FormationsIncludingSpecialAndEmpty.Where(f => f.CountOfUnits > 0 && f.QuerySystem.IsInfantryFormation)))
             {
                 bool hasEnemy = formation.HasAnyEnemyFormationsThatIsNotEmpty() && formation.GetCountOfUnitsWithCondition(a => IsPike(a.WieldedWeapon)) >= formation.CountOfUnits * settings.MinPikemenPercentInPikeFormation && formation.FiringOrder != FiringOrder.FiringOrderHoldYourFire;
-                bool isEnemyNearby = hasEnemy && formation.QuerySystem.AveragePosition.Distance(formation.QuerySystem.ClosestEnemyFormation.AveragePosition) <= settings.MinDistanceToReadyPikes, isLoose = formation.IsLoose;
-                float num = formation.QuerySystem.FormationIntegrityData.AverageMaxUnlimitedSpeedExcludeFarAgents * 3f;
+                bool isEnemyNearby = hasEnemy && formation.QuerySystem.AveragePosition.Distance(formation.QuerySystem.ClosestEnemyFormation.AveragePosition) <= settings.MinDistanceToReadyPikes;
+                float averageMaxUnlimitedSpeed = formation.QuerySystem.FormationIntegrityData.AverageMaxUnlimitedSpeedExcludeFarAgents * 3f;
 
                 foreach (Agent agent in formation.GetUnitsWithoutDetachedOnes().Concat(formation.DetachedUnits).Where(a => a.IsHuman))
                 {
-                    float num2 = agent.Position.AsVec2.Distance(formation.GetCurrentGlobalPositionOfUnit(agent, true));
+                    float timeSinceLastMeleeAttack = Mission.CurrentTime - agent.LastMeleeAttackTime, distanceFromCurrentGlobalPosition = agent.Position.AsVec2.Distance(formation.GetCurrentGlobalPositionOfUnit(agent, true));
 
-                    if (hasEnemy && !isLoose && num2 < num * 2f)
+                    // Disable blocking for pikemen.
+                    agent.SetAgentFlags((timeSinceLastMeleeAttack < 1f || timeSinceLastMeleeAttack >= 1.1f) && IsPike(agent.WieldedWeapon) && !agent.IsMainAgent && !settings.CanPikemenBlock ? agent.GetAgentFlags() & ~AgentFlag.CanDefend : agent.GetAgentFlags() | AgentFlag.CanDefend);
+
+                    if (IsPike(agent.WieldedWeapon) && agent.GetCurrentAction(1).Name.Contains("defend") && agent.GetCurrentAction(1).Name.Contains("staff") && !agent.IsMainAgent && !settings.CanPikemenBlock)
+                    {
+                        agent.SetActionChannel(1, ActionIndexCache.act_none, ignorePriority: true);
+                    }
+
+                    if (hasEnemy && !formation.IsLoose && distanceFromCurrentGlobalPosition < averageMaxUnlimitedSpeed * 2f)
                     {
                         // If the pikemen have enemies, make the pikemen walk.
                         agent.SetScriptedFlags(agent.GetScriptedFlags() | Agent.AIScriptedFrameFlags.DoNotRun);
@@ -73,7 +82,7 @@ namespace BetterPikes
                     {
                         ActionIndexCache currentAction = agent.GetCurrentAction(1);
 
-                        if (isEnemyNearby && IsPike(agent.WieldedWeapon) && !agent.IsMainAgent && num2 < num)
+                        if (isEnemyNearby && IsPike(agent.WieldedWeapon) && !agent.IsMainAgent && distanceFromCurrentGlobalPosition < averageMaxUnlimitedSpeed)
                         {
                             if (currentAction != _readyThrustActionIndex && currentAction != _readyOverswingActionIndex && currentAction != _guardUpActionIndex)
                             {
@@ -104,12 +113,6 @@ namespace BetterPikes
                                 agent.SetActionChannel(1, ActionIndexCache.act_none, ignorePriority: true, blendInPeriod: 0.5f);
                             }
                         }
-                    }
-
-                    // Disable blocking for pikemen.
-                    if (IsPike(agent.WieldedWeapon) && (agent.GetCurrentActionStage(1) == Agent.ActionStage.Defend || agent.GetCurrentActionStage(1) == Agent.ActionStage.DefendParry) && !agent.IsMainAgent && !settings.CanPikemenBlock)
-                    {
-                        agent.SetActionChannel(1, ActionIndexCache.act_none, ignorePriority: true, blendInPeriod: -1f);
                     }
                 }
             }
