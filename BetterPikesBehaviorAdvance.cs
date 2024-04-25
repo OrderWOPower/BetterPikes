@@ -22,11 +22,13 @@ namespace BetterPikes
 
             if (formation.GetCountOfUnitsWithCondition(agent => agent.WieldedWeapon.CurrentUsageItem?.ItemUsage == "polearm_pike") >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation)
             {
+                FormationQuerySystem querySystem = formation.QuerySystem;
+
                 // If the percentage of pikemen is above a certain limit, make the formation form a deep shield wall.
                 formation.ArrangementOrder = ArrangementOrder.ArrangementOrderShieldWall;
                 formation.FormOrder = FormOrder.FormOrderDeep;
 
-                if (!_arrangementTimer.Check(Mission.Current.CurrentTime) || formation.QuerySystem.FormationIntegrityData.DeviationOfPositionsExcludeFarAgents > formation.QuerySystem.FormationIntegrityData.AverageMaxUnlimitedSpeedExcludeFarAgents)
+                if ((!_arrangementTimer.Check(Mission.Current.CurrentTime) || querySystem.FormationIntegrityData.DeviationOfPositionsExcludeFarAgents > querySystem.FormationIntegrityData.AverageMaxUnlimitedSpeedExcludeFarAgents) && querySystem.ClosestEnemyFormation != null && querySystem.AveragePosition.Distance(querySystem.ClosestEnemyFormation.AveragePosition) > 100)
                 {
                     formation.ApplyActionOnEachUnit(agent => agent.SetTargetPosition(formation.GetCurrentGlobalPositionOfUnit(agent, true)));
                 }

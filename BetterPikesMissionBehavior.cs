@@ -51,16 +51,17 @@ namespace BetterPikes
 
             foreach (Formation formation in Mission.Teams.SelectMany(team => team.FormationsIncludingSpecialAndEmpty.Where(f => f.CountOfUnits > 0 && f.QuerySystem.IsInfantryFormation)))
             {
+                FormationQuerySystem querySystem = formation.QuerySystem;
                 bool hasEnemy = formation.HasAnyEnemyFormationsThatIsNotEmpty() && formation.GetCountOfUnitsWithCondition(a => IsPike(a.WieldedWeapon)) >= formation.CountOfUnits * settings.MinPikemenPercentInPikeFormation && formation.FiringOrder != FiringOrder.FiringOrderHoldYourFire;
-                bool isEnemyNearby = hasEnemy && formation.QuerySystem.AveragePosition.Distance(formation.QuerySystem.ClosestEnemyFormation.AveragePosition) <= settings.MinDistanceToReadyPikes;
-                float averageMaxUnlimitedSpeed = formation.QuerySystem.FormationIntegrityData.AverageMaxUnlimitedSpeedExcludeFarAgents * 3f;
+                bool isEnemyNearby = hasEnemy && querySystem.AveragePosition.Distance(querySystem.ClosestEnemyFormation.AveragePosition) <= settings.MinDistanceToReadyPikes;
+                float averageMaxUnlimitedSpeed = querySystem.FormationIntegrityData.AverageMaxUnlimitedSpeedExcludeFarAgents * 3f;
 
                 foreach (Agent agent in formation.GetUnitsWithoutDetachedOnes().Concat(formation.DetachedUnits).Where(a => a.IsHuman))
                 {
                     float timeSinceLastMeleeAttack = Mission.CurrentTime - agent.LastMeleeAttackTime, distanceFromCurrentGlobalPosition = agent.Position.AsVec2.Distance(formation.GetCurrentGlobalPositionOfUnit(agent, true));
 
                     // Disable blocking for pikemen.
-                    agent.SetAgentFlags((timeSinceLastMeleeAttack < 1f || timeSinceLastMeleeAttack >= 1.1f) && IsPike(agent.WieldedWeapon) && !agent.IsMainAgent && !settings.CanPikemenBlock ? agent.GetAgentFlags() & ~AgentFlag.CanDefend : agent.GetAgentFlags() | AgentFlag.CanDefend);
+                    agent.SetAgentFlags((timeSinceLastMeleeAttack < 1f || timeSinceLastMeleeAttack >= 1.2f) && IsPike(agent.WieldedWeapon) && !agent.IsMainAgent && !settings.CanPikemenBlock ? agent.GetAgentFlags() & ~AgentFlag.CanDefend : agent.GetAgentFlags() | AgentFlag.CanDefend);
 
                     if (IsPike(agent.WieldedWeapon) && agent.GetCurrentAction(1).Name.Contains("defend") && agent.GetCurrentAction(1).Name.Contains("staff") && !agent.IsMainAgent && !settings.CanPikemenBlock)
                     {

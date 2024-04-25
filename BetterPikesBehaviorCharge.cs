@@ -14,9 +14,9 @@ namespace BetterPikes
 
             if (formation.GetCountOfUnitsWithCondition(agent => agent.WieldedWeapon.CurrentUsageItem?.ItemUsage == "polearm_pike") >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation)
             {
-                FormationQuerySystem closestEnemyFormation = formation.QuerySystem.ClosestEnemyFormation;
+                FormationQuerySystem closestEnemyQuerySystem = formation.QuerySystem.ClosestEnemyFormation;
 
-                if (closestEnemyFormation != null && !closestEnemyFormation.IsCavalryFormation && !closestEnemyFormation.IsRangedCavalryFormation)
+                if (closestEnemyQuerySystem != null && !closestEnemyQuerySystem.IsCavalryFormation && !closestEnemyQuerySystem.IsRangedCavalryFormation)
                 {
                     // If the percentage of pikemen is above a certain limit, make the formation form a deep shield wall.
                     formation.ArrangementOrder = ArrangementOrder.ArrangementOrderShieldWall;
