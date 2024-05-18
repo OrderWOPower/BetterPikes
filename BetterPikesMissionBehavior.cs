@@ -7,6 +7,7 @@ namespace BetterPikes
     public class BetterPikesMissionBehavior : MissionBehavior
     {
         private readonly ActionIndexCache _readyThrustActionIndex, _readyOverswingActionIndex, _guardUpActionIndex;
+        private Timer _blockTimer;
 
         public override MissionBehaviorType BehaviorType => MissionBehaviorType.Other;
 
@@ -16,6 +17,8 @@ namespace BetterPikes
             _readyOverswingActionIndex = ActionIndexCache.Create("act_ready_overswing_pike");
             _guardUpActionIndex = ActionIndexCache.Create("act_guard_up_pike");
         }
+
+        public override void AfterStart() => _blockTimer = new Timer(Mission.Current.CurrentTime, 1f, false);
 
         public override void OnAgentBuild(Agent agent, Banner banner)
         {
@@ -49,6 +52,11 @@ namespace BetterPikes
         {
             BetterPikesSettings settings = BetterPikesSettings.Instance;
 
+            if (_blockTimer.ElapsedTime() >= 1.001f)
+            {
+                _blockTimer.Reset(Mission.CurrentTime);
+            }
+
             foreach (Formation formation in Mission.Teams.SelectMany(team => team.FormationsIncludingSpecialAndEmpty.Where(f => f.CountOfUnits > 0 && f.QuerySystem.IsInfantryFormation)))
             {
                 FormationQuerySystem querySystem = formation.QuerySystem;
@@ -58,10 +66,10 @@ namespace BetterPikes
 
                 foreach (Agent agent in formation.GetUnitsWithoutDetachedOnes().Concat(formation.DetachedUnits).Where(a => a.IsHuman))
                 {
-                    float timeSinceLastMeleeAttack = Mission.CurrentTime - agent.LastMeleeAttackTime, distanceFromCurrentGlobalPosition = agent.Position.AsVec2.Distance(formation.GetCurrentGlobalPositionOfUnit(agent, true));
+                    float distanceFromCurrentGlobalPosition = agent.Position.AsVec2.Distance(formation.GetCurrentGlobalPositionOfUnit(agent, true));
 
                     // Disable blocking for pikemen.
-                    agent.SetAgentFlags((timeSinceLastMeleeAttack < 1f || timeSinceLastMeleeAttack >= 1.2f) && IsPike(agent.WieldedWeapon) && !agent.IsMainAgent && !settings.CanPikemenBlock ? agent.GetAgentFlags() & ~AgentFlag.CanDefend : agent.GetAgentFlags() | AgentFlag.CanDefend);
+                    agent.SetAgentFlags(!_blockTimer.Check(Mission.CurrentTime) && IsPike(agent.WieldedWeapon) && !agent.IsMainAgent && !settings.CanPikemenBlock ? agent.GetAgentFlags() & ~AgentFlag.CanDefend : agent.GetAgentFlags() | AgentFlag.CanDefend);
 
                     if (IsPike(agent.WieldedWeapon) && agent.GetCurrentAction(1).Name.Contains("defend") && agent.GetCurrentAction(1).Name.Contains("staff") && !agent.IsMainAgent && !settings.CanPikemenBlock)
                     {
