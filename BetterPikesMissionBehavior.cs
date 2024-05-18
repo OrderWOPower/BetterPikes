@@ -18,7 +18,7 @@ namespace BetterPikes
             _guardUpActionIndex = ActionIndexCache.Create("act_guard_up_pike");
         }
 
-        public override void AfterStart() => _blockTimer = new Timer(Mission.Current.CurrentTime, 1f, false);
+        public override void AfterStart() => _blockTimer = new Timer(Mission.CurrentTime, 1f, false);
 
         public override void OnAgentBuild(Agent agent, Banner banner)
         {
