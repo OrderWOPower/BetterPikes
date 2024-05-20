@@ -50,11 +50,12 @@ namespace BetterPikes
 
         public override void OnMissionTick(float dt)
         {
+            float currentTime = Mission.CurrentTime;
             BetterPikesSettings settings = BetterPikesSettings.Instance;
 
             if (_blockTimer.ElapsedTime() >= 1.001f)
             {
-                _blockTimer.Reset(Mission.CurrentTime);
+                _blockTimer.Reset(currentTime);
             }
 
             foreach (Formation formation in Mission.Teams.SelectMany(team => team.FormationsIncludingSpecialAndEmpty.Where(f => f.CountOfUnits > 0 && f.QuerySystem.IsInfantryFormation)))
@@ -69,7 +70,7 @@ namespace BetterPikes
                     float distanceFromCurrentGlobalPosition = agent.Position.AsVec2.Distance(formation.GetCurrentGlobalPositionOfUnit(agent, true));
 
                     // Disable blocking for pikemen.
-                    agent.SetAgentFlags(!_blockTimer.Check(Mission.CurrentTime) && IsPike(agent.WieldedWeapon) && !agent.IsMainAgent && !settings.CanPikemenBlock ? agent.GetAgentFlags() & ~AgentFlag.CanDefend : agent.GetAgentFlags() | AgentFlag.CanDefend);
+                    agent.SetAgentFlags(!_blockTimer.Check(currentTime) && IsPike(agent.WieldedWeapon) && !agent.IsMainAgent && !settings.CanPikemenBlock ? agent.GetAgentFlags() & ~AgentFlag.CanDefend : agent.GetAgentFlags() | AgentFlag.CanDefend);
 
                     if (IsPike(agent.WieldedWeapon) && agent.GetCurrentAction(1).Name.Contains("defend") && agent.GetCurrentAction(1).Name.Contains("staff") && !agent.IsMainAgent && !settings.CanPikemenBlock)
                     {
