@@ -51,7 +51,7 @@
     </Reference>
     <Reference Include="TaleWorlds.DotNet, Version=1.0.0.0, Culture=neutral, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Mount &amp; Blade II Bannerlord\bin\Win64_Shipping_Client\TaleWorlds.DotNet.dll</HintPath>
+      <HintPath>..\..\..\..\Program Files (x86)\Steam\steamapps\common\Mount &amp; Blade II Bannerlord\bin\Win64_Shipping_Client\TaleWorlds.DotNet.dll</HintPath>
     </Reference>
     <Reference Include="TaleWorlds.Library, Version=1.0.0.0, Culture=neutral, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
@@ -65,7 +65,6 @@
     <Compile Include="BetterPikesBehaviorAdvance.cs" />
     <Compile Include="BetterPikesBehaviorCharge.cs" />
     <Compile Include="BetterPikesCombatMechanicsHelper.cs" />
-    <Compile Include="BetterPikesComponentData.cs" />
     <Compile Include="BetterPikesMissionBehavior.cs" />
     <Compile Include="BetterPikesSettings.cs" />
     <Compile Include="BetterPikesSubModule.cs" />

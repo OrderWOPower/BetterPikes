@@ -8,12 +8,19 @@ namespace BetterPikes
     {
         public static void Postfix(ref float __result, AttackInformation attackInformation, MissionWeapon weapon)
         {
+            string weaponDescription = weapon.CurrentUsageItem?.WeaponDescriptionId;
             Agent victim = attackInformation.VictimAgent;
-            string itemUsage = weapon.CurrentUsageItem?.ItemUsage;
 
-            if (victim != null && (victim.HasMount || victim.IsMount) && (itemUsage == "polearm_pike" || itemUsage == "polearm_bracing"))
+            if (weaponDescription.Contains("Pike") || weaponDescription.Contains("Bracing"))
             {
-                __result *= 10;
+                // Multiply the base blow magnitude of pikes.
+                __result *= BetterPikesSettings.Instance.PikeBlowMagnitudeMultiplier;
+
+                if (victim != null && (victim.HasMount || victim.IsMount))
+                {
+                    // Further multiply the base blow magnitude of pikes versus cavalry.
+                    __result *= 10;
+                }
             }
         }
     }

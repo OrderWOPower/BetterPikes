@@ -15,9 +15,9 @@ namespace BetterPikes
 
         public override string FormatType => "json2";
 
-        [SettingPropertyInteger("{=BetterPikes05}Pike Damage", 1, 100, "0", Order = 0, RequireRestart = false, HintText = "{=BetterPikes06}Multiplier for pike damage. Default is 4.")]
+        [SettingPropertyInteger("{=BetterPikes05}Pike Blow Magnitude", 1, 100, "0", Order = 0, RequireRestart = false, HintText = "{=BetterPikes06}Multiplier for blow magnitude of pikes. Default is 3.")]
         [SettingPropertyGroup("{=BetterPikes01}Multipliers", GroupOrder = 0)]
-        public int PikeDamageMultiplier { get; set; } = 4;
+        public int PikeBlowMagnitudeMultiplier { get; set; } = 3;
 
         [SettingPropertyFloatingInteger("{=BetterPikes07}Minimum Pikemen in Pike Formation", 0.5f, 1.0f, "#0%", Order = 0, RequireRestart = false, HintText = "{=BetterPikes08}Minimum percentage of pikemen in a formation to be treated as a pike formation. Default is 50%.")]
         [SettingPropertyGroup("{=BetterPikes02}Limits", GroupOrder = 1)]
