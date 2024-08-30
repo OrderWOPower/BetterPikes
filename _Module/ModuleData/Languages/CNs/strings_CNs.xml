@@ -8,8 +8,8 @@
     <string id="BetterPikes02" text="限制" />
     <string id="BetterPikes03" text="格挡" />
     <string id="BetterPikes04" text="围城战斗" />
-    <string id="BetterPikes05" text="长矛伤害" />
-    <string id="BetterPikes06" text="长矛伤害的乘数。默认为10。" />
+    <string id="BetterPikes05" text="长矛打击强度" />
+    <string id="BetterPikes06" text="长矛打击强度的乘数。默认为3。" />
     <string id="BetterPikes07" text="长矛编队中的最少长矛兵" />
     <string id="BetterPikes08" text="编队被视为长矛编队中的最少长矛兵百分比。默认为50%。" />
     <string id="BetterPikes09" text="准备长矛的最少距离" />
