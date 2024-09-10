@@ -11,7 +11,7 @@ namespace BetterPikes
             string weaponDescription = weapon.CurrentUsageItem?.WeaponDescriptionId;
             Agent victim = attackInformation.VictimAgent;
 
-            if (weaponDescription.Contains("Pike") || weaponDescription.Contains("Bracing"))
+            if (weaponDescription != null && (weaponDescription.Contains("Pike") || weaponDescription.Contains("Bracing")))
             {
                 // Multiply the base blow magnitude of pikes.
                 __result *= BetterPikesSettings.Instance.PikeBlowMagnitudeMultiplier;
