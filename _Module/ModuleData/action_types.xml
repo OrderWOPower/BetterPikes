@@ -15,6 +15,5 @@
     <action name="act_idle_pike_5" type="actt_idle" />
     <action name="act_idle_pike_6" type="actt_idle" />
     <action name="act_ready_thrust_pike" />
-    <action name="act_ready_overswing_pike" />
     <action name="act_guard_up_pike" />
   </action_types>

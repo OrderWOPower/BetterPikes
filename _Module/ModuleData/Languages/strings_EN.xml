@@ -9,7 +9,7 @@
     <string id="BetterPikes03" text="Blocking" />
     <string id="BetterPikes04" text="Siege Battles" />
     <string id="BetterPikes05" text="Pike Blow Magnitude" />
-    <string id="BetterPikes06" text="Multiplier for blow magnitude of pikes. Default is 3." />
+    <string id="BetterPikes06" text="Multiplier for blow magnitude of pikes. Default is 4." />
     <string id="BetterPikes07" text="Minimum Pikemen in Pike Formation" />
     <string id="BetterPikes08" text="Minimum percentage of pikemen in a formation to be treated as a pike formation. Default is 50%." />
     <string id="BetterPikes09" text="Minimum Distance to Ready Pikes" />
