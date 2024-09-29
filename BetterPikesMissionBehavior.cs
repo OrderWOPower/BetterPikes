@@ -6,7 +6,7 @@ namespace BetterPikes
 {
     public class BetterPikesMissionBehavior : MissionBehavior
     {
-        private readonly ActionIndexCache _readyThrustActionIndex, _readyOverswingActionIndex, _guardUpActionIndex;
+        private readonly ActionIndexCache _readyThrustActionIndex, _guardUpActionIndex;
         private Timer _blockTimer;
 
         public override MissionBehaviorType BehaviorType => MissionBehaviorType.Other;
@@ -14,7 +14,6 @@ namespace BetterPikes
         public BetterPikesMissionBehavior()
         {
             _readyThrustActionIndex = ActionIndexCache.Create("act_ready_thrust_pike");
-            _readyOverswingActionIndex = ActionIndexCache.Create("act_ready_overswing_pike");
             _guardUpActionIndex = ActionIndexCache.Create("act_guard_up_pike");
         }
 
@@ -85,20 +84,15 @@ namespace BetterPikes
                     {
                         if (isEnemyNearby && IsPike(agent.WieldedWeapon) && !agent.IsMainAgent && distanceFromCurrentGlobalPosition < averageMaxUnlimitedSpeed)
                         {
-                            if (currentAction != _readyThrustActionIndex && currentAction != _readyOverswingActionIndex && currentAction != _guardUpActionIndex)
+                            if (currentAction != _readyThrustActionIndex && currentAction != _guardUpActionIndex)
                             {
                                 agent.GetFormationFileAndRankInfo(out _, out int rankIndex);
 
                                 // If the pikemen's enemies are nearby, make the pikemen ready their pikes in different positions.
-                                if (rankIndex < 4)
+                                if (rankIndex < 5)
                                 {
-                                    // Make the first four ranks ready their pikes for an underarm thrust.
+                                    // Make the first five ranks ready their pikes for a thrust.
                                     agent.SetActionChannel(1, _readyThrustActionIndex, startProgress: MBRandom.RandomFloat);
-                                }
-                                else if (rankIndex == 4)
-                                {
-                                    // Make the fifth rank ready their pikes for an overhead thrust.
-                                    agent.SetActionChannel(1, _readyOverswingActionIndex, startProgress: MBRandom.RandomFloat);
                                 }
                                 else
                                 {
@@ -109,7 +103,7 @@ namespace BetterPikes
                         }
                         else
                         {
-                            if (currentAction == _readyThrustActionIndex || currentAction == _readyOverswingActionIndex || currentAction == _guardUpActionIndex)
+                            if (currentAction == _readyThrustActionIndex || currentAction == _guardUpActionIndex)
                             {
                                 agent.SetActionChannel(1, ActionIndexCache.act_none, ignorePriority: true, blendInPeriod: 0.5f);
                             }
