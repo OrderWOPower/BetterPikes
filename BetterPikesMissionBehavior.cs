@@ -62,6 +62,7 @@ namespace BetterPikes
                 FormationQuerySystem querySystem = formation.QuerySystem;
                 bool hasEnemy = formation.HasAnyEnemyFormationsThatIsNotEmpty() && formation.GetCountOfUnitsWithCondition(a => IsPike(a.WieldedWeapon)) >= formation.CountOfUnits * settings.MinPikemenPercentInPikeFormation && formation.FiringOrder != FiringOrder.FiringOrderHoldYourFire;
                 bool isEnemyNearby = hasEnemy && querySystem.AveragePosition.Distance(querySystem.ClosestEnemyFormation.AveragePosition) <= settings.MinDistanceToReadyPikes;
+                bool isLoose = formation.IsLoose, isCircle = formation.ArrangementOrder == ArrangementOrder.ArrangementOrderCircle;
                 float averageMaxUnlimitedSpeed = querySystem.FormationIntegrityData.AverageMaxUnlimitedSpeedExcludeFarAgents * 3f;
 
                 foreach (Agent agent in formation.GetUnitsWithoutDetachedOnes().Concat(formation.DetachedUnits).Where(a => a.IsHuman))
@@ -69,7 +70,7 @@ namespace BetterPikes
                     float distanceFromCurrentGlobalPosition = agent.Position.AsVec2.Distance(formation.GetCurrentGlobalPositionOfUnit(agent, true));
                     ActionIndexCache currentAction = agent.GetCurrentAction(1);
 
-                    if (hasEnemy && !formation.IsLoose && distanceFromCurrentGlobalPosition < averageMaxUnlimitedSpeed * 2f)
+                    if (hasEnemy && !isLoose && distanceFromCurrentGlobalPosition < averageMaxUnlimitedSpeed * 2f)
                     {
                         // If the pikemen have enemies, make the pikemen walk.
                         agent.SetScriptedFlags(agent.GetScriptedFlags() | Agent.AIScriptedFrameFlags.DoNotRun);
@@ -82,7 +83,7 @@ namespace BetterPikes
 
                     if (MBRandom.RandomFloat < 0.2f)
                     {
-                        if (isEnemyNearby && IsPike(agent.WieldedWeapon) && !agent.IsMainAgent && distanceFromCurrentGlobalPosition < averageMaxUnlimitedSpeed)
+                        if ((isEnemyNearby || isCircle) && IsPike(agent.WieldedWeapon) && !agent.IsMainAgent && distanceFromCurrentGlobalPosition < averageMaxUnlimitedSpeed)
                         {
                             if (currentAction != _readyThrustActionIndex && currentAction != _guardUpActionIndex)
                             {
