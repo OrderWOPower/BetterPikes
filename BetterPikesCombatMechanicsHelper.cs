@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using TaleWorlds.Core;
 using TaleWorlds.MountAndBlade;
 
 namespace BetterPikes
@@ -9,9 +8,9 @@ namespace BetterPikes
     {
         [HarmonyPostfix]
         [HarmonyPatch("DecideAgentDismountedByBlow")]
-        public static void Postfix1(ref bool __result, WeaponComponentData attackerWeapon)
+        public static void Postfix1(ref bool __result, Agent attackerAgent)
         {
-            if (IsPike(attackerWeapon?.WeaponDescriptionId))
+            if (IsPike(attackerAgent.WieldedWeapon))
             {
                 // Make pikes always dismount riders.
                 __result = true;
@@ -20,11 +19,11 @@ namespace BetterPikes
 
         [HarmonyPostfix]
         [HarmonyPatch("DecideMountRearedByBlow")]
-        public static void Postfix2(ref bool __result, WeaponComponentData attackerWeapon)
+        public static void Postfix2(ref bool __result, Agent attackerAgent)
         {
-            if (IsPike(attackerWeapon?.WeaponDescriptionId))
+            if (IsPike(attackerAgent.WieldedWeapon))
             {
-                // Make pikes always rear horses.
+                // Make pikes always rear mounts.
                 __result = true;
             }
         }
@@ -33,7 +32,7 @@ namespace BetterPikes
         [HarmonyPatch("CalculateBaseMeleeBlowMagnitude")]
         public static void Postfix3(ref float __result, AttackInformation attackInformation, MissionWeapon weapon)
         {
-            if (IsPike(weapon.CurrentUsageItem?.WeaponDescriptionId))
+            if (IsPike(weapon))
             {
                 // Multiply the base blow magnitude of pikes.
                 __result *= BetterPikesSettings.Instance.PikeBlowMagnitudeMultiplier;
@@ -46,6 +45,6 @@ namespace BetterPikes
             }
         }
 
-        private static bool IsPike(string weaponDescription) => weaponDescription != null && (weaponDescription.Contains("Pike") || weaponDescription.Contains("Bracing"));
+        private static bool IsPike(MissionWeapon weapon) => weapon.CurrentUsageItem != null && weapon.GetWeaponComponentDataForUsage(0) != null && weapon.GetWeaponComponentDataForUsage(0).WeaponDescriptionId.Contains("Pike");
     }
 }

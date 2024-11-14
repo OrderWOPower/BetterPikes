@@ -114,7 +114,7 @@ namespace BetterPikes
                     // Disable blocking for pikemen.
                     agent.SetAgentFlags(!_blockTimer.Check(currentTime) && IsPike(agent.WieldedWeapon) && !agent.IsMainAgent && !settings.CanPikemenBlock ? agent.GetAgentFlags() & ~AgentFlag.CanDefend : agent.GetAgentFlags() | AgentFlag.CanDefend);
 
-                    if (IsPike(agent.WieldedWeapon) && currentAction.Name.Contains("defend") && currentAction.Name.Contains("staff") && !agent.IsMainAgent && !settings.CanPikemenBlock)
+                    if (IsPike(agent.WieldedWeapon) && currentAction.Name.Contains("defend") && !agent.IsMainAgent && !settings.CanPikemenBlock)
                     {
                         agent.SetActionChannel(1, ActionIndexCache.act_none, ignorePriority: true);
                     }
@@ -122,6 +122,6 @@ namespace BetterPikes
             }
         }
 
-        private bool IsPike(MissionWeapon weapon) => weapon.CurrentUsageItem?.ItemUsage == "polearm_pike";
+        private bool IsPike(MissionWeapon weapon) => weapon.CurrentUsageItem != null && weapon.CurrentUsageItem.WeaponDescriptionId.Contains("Pike");
     }
 }
