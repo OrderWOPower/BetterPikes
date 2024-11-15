@@ -45,6 +45,6 @@ namespace BetterPikes
             }
         }
 
-        private static bool IsPike(MissionWeapon weapon) => weapon.CurrentUsageItem != null && weapon.GetWeaponComponentDataForUsage(0) != null && weapon.GetWeaponComponentDataForUsage(0).WeaponDescriptionId.Contains("Pike");
+        private static bool IsPike(MissionWeapon weapon) => weapon.CurrentUsageItem != null && weapon.GetWeaponComponentDataForUsage(0).WeaponDescriptionId != null && weapon.GetWeaponComponentDataForUsage(0).WeaponDescriptionId.Contains("Pike");
     }
 }

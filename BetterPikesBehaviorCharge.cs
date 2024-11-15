@@ -12,7 +12,7 @@ namespace BetterPikes
         {
             Formation formation = __instance.Formation;
 
-            if (formation.GetCountOfUnitsWithCondition(agent => agent.WieldedWeapon.CurrentUsageItem != null && agent.WieldedWeapon.CurrentUsageItem.WeaponDescriptionId.Contains("Pike")) >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation)
+            if (formation.GetCountOfUnitsWithCondition(agent => agent.WieldedWeapon.CurrentUsageItem?.WeaponDescriptionId != null && agent.WieldedWeapon.CurrentUsageItem.WeaponDescriptionId.Contains("Pike")) >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation)
             {
                 FormationQuerySystem closestEnemyQuerySystem = formation.QuerySystem.ClosestEnemyFormation;
 
