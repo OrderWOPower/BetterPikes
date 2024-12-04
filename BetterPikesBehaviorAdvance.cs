@@ -28,26 +28,20 @@ namespace BetterPikes
                 formation.ArrangementOrder = ArrangementOrder.ArrangementOrderShieldWall;
                 formation.FormOrder = FormOrder.FormOrderDeep;
 
-                if ((!_arrangementTimer.Check(Mission.Current.CurrentTime) || querySystem.FormationIntegrityData.DeviationOfPositionsExcludeFarAgents > querySystem.FormationIntegrityData.AverageMaxUnlimitedSpeedExcludeFarAgents) && querySystem.ClosestEnemyFormation != null && querySystem.AveragePosition.Distance(querySystem.ClosestEnemyFormation.AveragePosition) > 100)
+                formation.ApplyActionOnEachUnit(delegate (Agent agent)
                 {
-                    formation.ApplyActionOnEachUnit(delegate (Agent agent)
+                    if (agent.IsAIControlled)
                     {
-                        if (agent.IsAIControlled)
+                        if ((!_arrangementTimer.Check(Mission.Current.CurrentTime) || querySystem.FormationIntegrityData.DeviationOfPositionsExcludeFarAgents > querySystem.FormationIntegrityData.AverageMaxUnlimitedSpeedExcludeFarAgents) && querySystem.ClosestEnemyFormation != null && querySystem.AveragePosition.Distance(querySystem.ClosestEnemyFormation.AveragePosition) > 100)
                         {
                             agent.SetTargetPosition(formation.GetCurrentGlobalPositionOfUnit(agent, true));
                         }
-                    });
-                }
-                else
-                {
-                    formation.ApplyActionOnEachUnit(delegate (Agent agent)
-                    {
-                        if (agent.IsAIControlled)
+                        else
                         {
                             agent.ClearTargetFrame();
                         }
-                    });
-                }
+                    }
+                });
             }
         }
     }
