@@ -10,7 +10,7 @@ namespace BetterPikes
         [HarmonyPatch("DecideAgentDismountedByBlow")]
         public static void Postfix1(ref bool __result, Agent attackerAgent)
         {
-            if (IsPike(attackerAgent.WieldedWeapon))
+            if (attackerAgent.IsHuman && IsPike(attackerAgent.WieldedWeapon))
             {
                 // Make pikes always dismount riders.
                 __result = true;
@@ -21,7 +21,7 @@ namespace BetterPikes
         [HarmonyPatch("DecideMountRearedByBlow")]
         public static void Postfix2(ref bool __result, Agent attackerAgent)
         {
-            if (IsPike(attackerAgent.WieldedWeapon))
+            if (attackerAgent.IsHuman && IsPike(attackerAgent.WieldedWeapon))
             {
                 // Make pikes always rear mounts.
                 __result = true;
