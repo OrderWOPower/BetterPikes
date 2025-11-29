@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using System;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
 
@@ -12,15 +11,15 @@ namespace BetterPikes
         {
             Formation formation = __instance.Formation;
 
-            if (formation.GetCountOfUnitsWithCondition(agent => agent.WieldedWeapon.CurrentUsageItem?.WeaponDescriptionId != null && agent.WieldedWeapon.CurrentUsageItem.WeaponDescriptionId.Contains("Pike")) >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation)
+            if (formation.GetCountOfUnitsWithCondition(agent => BetterPikesHelper.IsPike(agent.WieldedWeapon)) >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation)
             {
-                FormationQuerySystem closestEnemyQuerySystem = formation.QuerySystem.ClosestEnemyFormation;
+                FormationQuerySystem closestEnemyQuerySystem = formation.CachedClosestEnemyFormation;
 
                 if (closestEnemyQuerySystem != null && !closestEnemyQuerySystem.IsCavalryFormation && !closestEnemyQuerySystem.IsRangedCavalryFormation)
                 {
                     // If the percentage of pikemen is above a certain limit, make the formation form a deep shield wall.
-                    formation.ArrangementOrder = ArrangementOrder.ArrangementOrderShieldWall;
-                    formation.FormOrder = FormOrder.FormOrderDeep;
+                    formation.SetArrangementOrder(ArrangementOrder.ArrangementOrderShieldWall);
+                    formation.SetFormOrder(FormOrder.FormOrderDeep);
                     formation.SetMovementOrder(MovementOrder.MovementOrderAdvance);
                 }
 
@@ -33,12 +32,12 @@ namespace BetterPikes
                     {
                         double a = (double)(num2 + (formation.Distance * num3) + (formation.UnitDiameter * (num3 + 1))) * 3.141592653589793 * 2.0 / (double)(formation.UnitDiameter + formation.Interval);
 
-                        i -= (int)Math.Ceiling(a);
+                        i -= MathF.Ceiling(a);
                         num3++;
                     }
 
                     num4 = num2 + (num3 * formation.UnitDiameter) + ((num3 - 1) * formation.Distance);
-                    formation.FormOrder = FormOrder.FormOrderCustom(num4 * 2f);
+                    formation.SetFormOrder(FormOrder.FormOrderCustom(num4 * 2f));
                 }
             }
         }

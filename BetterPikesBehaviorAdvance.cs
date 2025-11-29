@@ -20,19 +20,17 @@ namespace BetterPikes
         {
             Formation formation = __instance.Formation;
 
-            if (formation.GetCountOfUnitsWithCondition(agent => agent.WieldedWeapon.CurrentUsageItem?.WeaponDescriptionId != null && agent.WieldedWeapon.CurrentUsageItem.WeaponDescriptionId.Contains("Pike")) >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation)
+            if (formation.GetCountOfUnitsWithCondition(agent => BetterPikesHelper.IsPike(agent.WieldedWeapon)) >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation)
             {
-                FormationQuerySystem querySystem = formation.QuerySystem;
-
                 // If the percentage of pikemen is above a certain limit, make the formation form a deep shield wall.
-                formation.ArrangementOrder = ArrangementOrder.ArrangementOrderShieldWall;
-                formation.FormOrder = FormOrder.FormOrderDeep;
+                formation.SetArrangementOrder(ArrangementOrder.ArrangementOrderShieldWall);
+                formation.SetFormOrder(FormOrder.FormOrderDeep);
 
                 formation.ApplyActionOnEachUnit(delegate (Agent agent)
                 {
                     if (agent.IsAIControlled)
                     {
-                        if ((!_arrangementTimer.Check(Mission.Current.CurrentTime) || querySystem.FormationIntegrityData.DeviationOfPositionsExcludeFarAgents > querySystem.FormationIntegrityData.AverageMaxUnlimitedSpeedExcludeFarAgents) && querySystem.ClosestEnemyFormation != null && querySystem.AveragePosition.Distance(querySystem.ClosestEnemyFormation.AveragePosition) > 100)
+                        if ((!_arrangementTimer.Check(Mission.Current.CurrentTime) || formation.CachedFormationIntegrityData.DeviationOfPositionsExcludeFarAgents > formation.CachedFormationIntegrityData.AverageMaxUnlimitedSpeedExcludeFarAgents) && formation.CachedClosestEnemyFormation != null && formation.CachedAveragePosition.Distance(formation.CachedClosestEnemyFormation.Formation.CachedAveragePosition) > 100)
                         {
                             agent.SetTargetPosition(formation.GetCurrentGlobalPositionOfUnit(agent, true));
                         }

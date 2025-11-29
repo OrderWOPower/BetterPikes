@@ -17,7 +17,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\..\..\..\..\Program Files %28x86%29\Steam\steamapps\common\Mount &amp; Blade II Bannerlord\Modules\BetterPikes\bin\Win64_Shipping_Client\</OutputPath>
+    <OutputPath>D:\SteamLibrary\steamapps\common\Mount &amp; Blade II Bannerlord\Modules\BetterPikes\bin\Win64_Shipping_Client\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -32,10 +32,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Mount &amp; Blade II Bannerlord\Modules\Bannerlord.Harmony\bin\Win64_Shipping_Client\0Harmony.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Mount &amp; Blade II Bannerlord\Modules\Bannerlord.Harmony\bin\Win64_Shipping_Client\0Harmony.dll</HintPath>
     </Reference>
     <Reference Include="MCMv5">
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\workshop\content\261550\2859238197\bin\Win64_Shipping_Client\MCMv5.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Mount &amp; Blade II Bannerlord\Modules\Bannerlord.MBOptionScreen\bin\Win64_Shipping_Client\MCMv5.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -45,27 +45,30 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
-    <Reference Include="TaleWorlds.Core, Version=1.0.0.0, Culture=neutral, processorArchitecture=AMD64">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Mount &amp; Blade II Bannerlord\bin\Win64_Shipping_Client\TaleWorlds.Core.dll</HintPath>
+    <Reference Include="TaleWorlds.Core">
+      <HintPath>D:\SteamLibrary\steamapps\common\Mount &amp; Blade II Bannerlord\bin\Win64_Shipping_Client\TaleWorlds.Core.dll</HintPath>
     </Reference>
-    <Reference Include="TaleWorlds.DotNet, Version=1.0.0.0, Culture=neutral, processorArchitecture=AMD64">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Program Files (x86)\Steam\steamapps\common\Mount &amp; Blade II Bannerlord\bin\Win64_Shipping_Client\TaleWorlds.DotNet.dll</HintPath>
+    <Reference Include="TaleWorlds.DotNet">
+      <HintPath>D:\SteamLibrary\steamapps\common\Mount &amp; Blade II Bannerlord\bin\Win64_Shipping_Client\TaleWorlds.DotNet.dll</HintPath>
     </Reference>
-    <Reference Include="TaleWorlds.Library, Version=1.0.0.0, Culture=neutral, processorArchitecture=AMD64">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Mount &amp; Blade II Bannerlord\bin\Win64_Shipping_Client\TaleWorlds.Library.dll</HintPath>
+    <Reference Include="TaleWorlds.Engine">
+      <HintPath>D:\SteamLibrary\steamapps\common\Mount &amp; Blade II Bannerlord\bin\Win64_Shipping_Client\TaleWorlds.Engine.dll</HintPath>
+    </Reference>
+    <Reference Include="TaleWorlds.Library">
+      <HintPath>D:\SteamLibrary\steamapps\common\Mount &amp; Blade II Bannerlord\bin\Win64_Shipping_Client\TaleWorlds.Library.dll</HintPath>
     </Reference>
     <Reference Include="TaleWorlds.MountAndBlade">
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Mount &amp; Blade II Bannerlord\bin\Win64_Shipping_Client\TaleWorlds.MountAndBlade.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Mount &amp; Blade II Bannerlord\bin\Win64_Shipping_Client\TaleWorlds.MountAndBlade.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BetterPikesAgentComponent.cs" />
     <Compile Include="BetterPikesBehaviorAdvance.cs" />
     <Compile Include="BetterPikesBehaviorCharge.cs" />
     <Compile Include="BetterPikesCombatMechanicsHelper.cs" />
+    <Compile Include="BetterPikesHelper.cs" />
     <Compile Include="BetterPikesMissionBehavior.cs" />
+    <Compile Include="BetterPikesPostureLogic.cs" />
     <Compile Include="BetterPikesSettings.cs" />
     <Compile Include="BetterPikesSubModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

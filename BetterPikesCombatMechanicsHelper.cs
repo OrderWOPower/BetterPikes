@@ -7,21 +7,10 @@ namespace BetterPikes
     public class BetterPikesCombatMechanicsHelper
     {
         [HarmonyPostfix]
-        [HarmonyPatch("DecideAgentDismountedByBlow")]
+        [HarmonyPatch("DecideMountRearedByBlow")]
         public static void Postfix1(ref bool __result, Agent attackerAgent)
         {
-            if (attackerAgent.IsHuman && IsPike(attackerAgent.WieldedWeapon))
-            {
-                // Make pikes always dismount riders.
-                __result = true;
-            }
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch("DecideMountRearedByBlow")]
-        public static void Postfix2(ref bool __result, Agent attackerAgent)
-        {
-            if (attackerAgent.IsHuman && IsPike(attackerAgent.WieldedWeapon))
+            if (attackerAgent.IsHuman && BetterPikesHelper.IsPike(attackerAgent.WieldedWeapon))
             {
                 // Make pikes always rear mounts.
                 __result = true;
@@ -30,9 +19,9 @@ namespace BetterPikes
 
         [HarmonyPostfix]
         [HarmonyPatch("CalculateBaseMeleeBlowMagnitude")]
-        public static void Postfix3(ref float __result, AttackInformation attackInformation, MissionWeapon weapon)
+        public static void Postfix2(ref float __result, AttackInformation attackInformation)
         {
-            if (IsPike(weapon))
+            if (BetterPikesHelper.IsPike(attackInformation.AttackerWeapon))
             {
                 // Multiply the base blow magnitude of pikes.
                 __result *= BetterPikesSettings.Instance.PikeBlowMagnitudeMultiplier;
@@ -44,7 +33,5 @@ namespace BetterPikes
                 }
             }
         }
-
-        private static bool IsPike(MissionWeapon weapon) => weapon.CurrentUsageItem != null && weapon.GetWeaponComponentDataForUsage(0).WeaponDescriptionId != null && weapon.GetWeaponComponentDataForUsage(0).WeaponDescriptionId.Contains("Pike");
     }
 }

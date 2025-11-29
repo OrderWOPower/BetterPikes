@@ -7,7 +7,6 @@ namespace BetterPikes
     public class BetterPikesMissionBehavior : MissionBehavior
     {
         private readonly ActionIndexCache _readyThrustActionIndex, _guardUpActionIndex;
-        private Timer _blockTimer;
 
         public override MissionBehaviorType BehaviorType => MissionBehaviorType.Other;
 
@@ -17,23 +16,12 @@ namespace BetterPikes
             _guardUpActionIndex = ActionIndexCache.Create("act_guard_up_pike");
         }
 
-        public override void AfterStart() => _blockTimer = new Timer(Mission.CurrentTime, 1f, false);
-
         public override void OnAgentBuild(Agent agent, Banner banner)
         {
-            BetterPikesSettings settings = BetterPikesSettings.Instance;
-
-            // Determine which side to remove pikes from in siege battles.
-            if (Mission.IsSiegeBattle && agent.IsHuman && ((agent.Team.IsAttacker && settings.SidesToRemovePikes.SelectedIndex == 1) || (agent.Team.IsDefender && settings.SidesToRemovePikes.SelectedIndex == 2) || settings.SidesToRemovePikes.SelectedIndex == 3))
+            if (agent.IsHuman)
             {
-                for (EquipmentIndex index = EquipmentIndex.WeaponItemBeginSlot; index < EquipmentIndex.ExtraWeaponSlot; index++)
-                {
-                    if (IsPike(agent.Equipment[index]))
-                    {
-                        // Remove pikes in siege battles.
-                        agent.RemoveEquippedWeapon(index);
-                    }
-                }
+                agent.AddComponent(new BetterPikesAgentComponent(agent));
+                agent.SetHasOnAiInputSetCallback(true);
             }
         }
 
@@ -41,7 +29,6 @@ namespace BetterPikes
         {
             if (affectedAgent.IsHuman)
             {
-                affectedAgent.SetAgentFlags(affectedAgent.GetAgentFlags() | AgentFlag.CanDefend);
                 affectedAgent.SetScriptedFlags(affectedAgent.GetScriptedFlags() & ~Agent.AIScriptedFrameFlags.DoNotRun);
                 affectedAgent.SetActionChannel(1, ActionIndexCache.act_none, ignorePriority: true, blendInPeriod: 0.5f);
             }
@@ -49,32 +36,23 @@ namespace BetterPikes
 
         public override void OnMissionTick(float dt)
         {
-            float currentTime = Mission.CurrentTime;
-            BetterPikesSettings settings = BetterPikesSettings.Instance;
-
-            if (_blockTimer.ElapsedTime() >= 1.001f)
-            {
-                _blockTimer.Reset(currentTime);
-            }
-
             foreach (Formation formation in Mission.Teams.SelectMany(team => team.FormationsIncludingSpecialAndEmpty.Where(f => f.CountOfUnits > 0 && f.QuerySystem.IsInfantryFormation)))
             {
-                FormationQuerySystem querySystem = formation.QuerySystem;
-                bool hasEnemy = formation.HasAnyEnemyFormationsThatIsNotEmpty() && formation.GetCountOfUnitsWithCondition(a => IsPike(a.WieldedWeapon)) >= formation.CountOfUnits * settings.MinPikemenPercentInPikeFormation && formation.FiringOrder != FiringOrder.FiringOrderHoldYourFire;
-                bool isEnemyNearby = hasEnemy && querySystem.AveragePosition.Distance(querySystem.ClosestEnemyFormation.AveragePosition) <= settings.MinDistanceToReadyPikes;
-                bool isLoose = formation.IsLoose, isCircle = formation.ArrangementOrder == ArrangementOrder.ArrangementOrderCircle;
-                float averageMaxUnlimitedSpeed = querySystem.FormationIntegrityData.AverageMaxUnlimitedSpeedExcludeFarAgents * 3f;
+                bool hasEnemy = formation.HasAnyEnemyFormationsThatIsNotEmpty() && formation.GetCountOfUnitsWithCondition(a => BetterPikesHelper.IsPike(a.WieldedWeapon)) >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation && formation.FiringOrder != FiringOrder.FiringOrderHoldYourFire;
+                bool isEnemyNearby = hasEnemy && formation.CachedAveragePosition.Distance(formation.CachedClosestEnemyFormation.Formation.CachedAveragePosition) <= BetterPikesSettings.Instance.MinDistanceToReadyPikes;
+                bool isInLooseFormation = formation.IsLoose, isInCircleArrangement = formation.ArrangementOrder == ArrangementOrder.ArrangementOrderCircle;
+                float averageMaxUnlimitedSpeed = formation.CachedFormationIntegrityData.AverageMaxUnlimitedSpeedExcludeFarAgents * 3f;
 
-                foreach (Agent agent in formation.GetUnitsWithoutDetachedOnes().Concat(formation.DetachedUnits).Where(a => a.IsHuman))
+                foreach (Agent agent in formation.GetUnitsWithoutDetachedOnes().Concat(formation.DetachedUnits).Where(a => a.IsHuman && a.IsActive()))
                 {
                     float distanceFromCurrentGlobalPosition = agent.Position.AsVec2.Distance(formation.GetCurrentGlobalPositionOfUnit(agent, true));
                     ActionIndexCache currentAction = agent.GetCurrentAction(1);
 
-                    if (hasEnemy && !isLoose && distanceFromCurrentGlobalPosition < averageMaxUnlimitedSpeed * 2f)
+                    if (hasEnemy && !isInLooseFormation && distanceFromCurrentGlobalPosition < averageMaxUnlimitedSpeed * 2f)
                     {
                         // If the pikemen have enemies, make the pikemen walk.
                         agent.SetScriptedFlags(agent.GetScriptedFlags() | Agent.AIScriptedFrameFlags.DoNotRun);
-                        agent.SetMaximumSpeedLimit(agent.MaximumForwardUnlimitedSpeed, false);
+                        agent.SetMaximumSpeedLimit(agent.GetMaximumForwardUnlimitedSpeed(), false);
                     }
                     else
                     {
@@ -83,7 +61,7 @@ namespace BetterPikes
 
                     if (MBRandom.RandomFloat < 0.2f)
                     {
-                        if ((isEnemyNearby || isCircle) && IsPike(agent.WieldedWeapon) && !agent.IsMainAgent && distanceFromCurrentGlobalPosition < averageMaxUnlimitedSpeed)
+                        if ((isEnemyNearby || isInCircleArrangement) && BetterPikesHelper.IsPike(agent.WieldedWeapon) && !agent.IsDoingPassiveAttack && !agent.IsMainAgent && distanceFromCurrentGlobalPosition < averageMaxUnlimitedSpeed)
                         {
                             if (currentAction != _readyThrustActionIndex && currentAction != _guardUpActionIndex)
                             {
@@ -110,18 +88,8 @@ namespace BetterPikes
                             }
                         }
                     }
-
-                    // Disable blocking for pikemen.
-                    agent.SetAgentFlags(!_blockTimer.Check(currentTime) && IsPike(agent.WieldedWeapon) && !agent.IsMainAgent && !settings.CanPikemenBlock ? agent.GetAgentFlags() & ~AgentFlag.CanDefend : agent.GetAgentFlags() | AgentFlag.CanDefend);
-
-                    if (IsPike(agent.WieldedWeapon) && currentAction.Name.Contains("defend") && !agent.IsMainAgent && !settings.CanPikemenBlock)
-                    {
-                        agent.SetActionChannel(1, ActionIndexCache.act_none, ignorePriority: true);
-                    }
                 }
             }
         }
-
-        private bool IsPike(MissionWeapon weapon) => weapon.CurrentUsageItem?.WeaponDescriptionId != null && weapon.CurrentUsageItem.WeaponDescriptionId.Contains("Pike");
     }
 }
