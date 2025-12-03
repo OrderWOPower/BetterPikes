@@ -43,7 +43,7 @@ namespace BetterPikes
                 bool isInLooseFormation = formation.IsLoose, isInCircleArrangement = formation.ArrangementOrder == ArrangementOrder.ArrangementOrderCircle;
                 float averageMaxUnlimitedSpeed = formation.CachedFormationIntegrityData.AverageMaxUnlimitedSpeedExcludeFarAgents * 3f;
 
-                foreach (Agent agent in formation.GetUnitsWithoutDetachedOnes().Concat(formation.DetachedUnits).Where(a => a.IsHuman && a.IsActive()))
+                foreach (Agent agent in formation.GetUnitsWithoutDetachedOnes().Where(a => a.IsHuman && a.IsActive()))
                 {
                     float distanceFromCurrentGlobalPosition = agent.Position.AsVec2.Distance(formation.GetCurrentGlobalPositionOfUnit(agent, true));
                     ActionIndexCache currentAction = agent.GetCurrentAction(1);

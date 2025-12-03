@@ -26,7 +26,7 @@ namespace BetterPikes
                 formation.SetArrangementOrder(ArrangementOrder.ArrangementOrderShieldWall);
                 formation.SetFormOrder(FormOrder.FormOrderDeep);
 
-                formation.ApplyActionOnEachUnit(delegate (Agent agent)
+                formation.ApplyActionOnEachAttachedUnit(delegate (Agent agent)
                 {
                     if (agent.IsAIControlled)
                     {
