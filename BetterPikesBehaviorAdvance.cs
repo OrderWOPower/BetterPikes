@@ -20,7 +20,7 @@ namespace BetterPikes
         {
             Formation formation = __instance.Formation;
 
-            if (formation.GetCountOfUnitsWithCondition(agent => BetterPikesHelper.IsPike(agent.WieldedWeapon)) >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation)
+            if (formation.GetCountOfUnitsWithCondition(agent => agent.GetPrimaryWieldedItemIndex() != EquipmentIndex.None && BetterPikesHelper.IsPike(agent.WieldedWeapon)) >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation)
             {
                 // If the percentage of pikemen is above a certain limit, make the formation form a deep shield wall.
                 formation.SetArrangementOrder(ArrangementOrder.ArrangementOrderShieldWall);

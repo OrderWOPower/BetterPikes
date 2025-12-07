@@ -22,7 +22,6 @@ namespace BetterPikes
         protected override void OnGameStart(Game game, IGameStarter gameStarterObject)
         {
             _typeofPostureLogic = AccessTools.TypeByName("RBMAI.PostureLogic+CreateMeleeBlowPatch");
-
             _harmony.Patch(AccessTools.Method(_typeofPostureLogic, "calculateDefenderPostureDamage"), postfix: new HarmonyMethod(AccessTools.Method(typeof(BetterPikesPostureLogic), "Postfix")));
             _harmony.Patch(AccessTools.Method(_typeofPostureLogic, "calculateAttackerPostureDamage"), postfix: new HarmonyMethod(AccessTools.Method(typeof(BetterPikesPostureLogic), "Postfix")));
         }
