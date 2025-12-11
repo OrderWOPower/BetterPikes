@@ -22,15 +22,17 @@ namespace BetterPikes
 
             if (formation.GetCountOfUnitsWithCondition(agent => agent.IsActive() && BetterPikesHelper.IsPike(agent.WieldedWeapon)) >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation)
             {
+                bool shouldFormUp = (!_arrangementTimer.Check(Mission.Current.CurrentTime) || formation.CachedFormationIntegrityData.DeviationOfPositionsExcludeFarAgents > formation.CachedFormationIntegrityData.AverageMaxUnlimitedSpeedExcludeFarAgents) && formation.CachedClosestEnemyFormation != null && formation.CachedAveragePosition.Distance(formation.CachedClosestEnemyFormation.Formation.CachedAveragePosition) > 100;
+
                 // If the percentage of pikemen is above a certain limit, make the formation form a deep shield wall.
                 formation.SetArrangementOrder(ArrangementOrder.ArrangementOrderShieldWall);
                 formation.SetFormOrder(FormOrder.FormOrderDeep);
 
-                formation.ApplyActionOnEachAttachedUnit(delegate (Agent agent)
+                formation.ApplyActionOnEachUnit(delegate (Agent agent)
                 {
                     if (agent.IsAIControlled)
                     {
-                        if ((!_arrangementTimer.Check(Mission.Current.CurrentTime) || formation.CachedFormationIntegrityData.DeviationOfPositionsExcludeFarAgents > formation.CachedFormationIntegrityData.AverageMaxUnlimitedSpeedExcludeFarAgents) && formation.CachedClosestEnemyFormation != null && formation.CachedAveragePosition.Distance(formation.CachedClosestEnemyFormation.Formation.CachedAveragePosition) > 100)
+                        if (shouldFormUp)
                         {
                             agent.SetTargetPosition(formation.GetCurrentGlobalPositionOfUnit(agent, true));
                         }
