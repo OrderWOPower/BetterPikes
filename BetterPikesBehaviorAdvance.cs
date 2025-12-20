@@ -16,7 +16,7 @@ namespace BetterPikes
         protected static void Postfix1(BehaviorAdvance __instance)
         {
             _hasFormedUp = false;
-            _formUpTimer = new Timer(Mission.Current.CurrentTime, MathF.Log10(__instance.Formation.CountOfUnits), false);
+            _formUpTimer = new Timer(Mission.Current.CurrentTime, MathF.Log10(__instance.Formation.CountOfUnits) * 5f, false);
         }
 
         [HarmonyPostfix]
