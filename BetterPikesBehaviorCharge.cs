@@ -1,29 +1,64 @@
 ﻿using HarmonyLib;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Reflection.Emit;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
 
 namespace BetterPikes
 {
-    [HarmonyPatch(typeof(BehaviorCharge), "TickOccasionally")]
+    [HarmonyPatch(typeof(BehaviorCharge))]
     public class BetterPikesBehaviorCharge
     {
-        public static void Postfix(BehaviorCharge __instance)
+        [HarmonyPatch("OnBehaviorActivatedAux")]
+        protected static void Postfix(BehaviorCharge __instance)
         {
             Formation formation = __instance.Formation;
 
             if (formation.GetCountOfUnitsWithCondition(agent => agent.IsActive() && BetterPikesHelper.IsPike(agent.WieldedWeapon)) >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation)
             {
-                FormationQuerySystem closestEnemyQuerySystem = formation.CachedClosestEnemyFormation;
+                formation.ApplyActionOnEachUnit(delegate (Agent agent)
+                {
+                    agent.ClearTargetFrame();
+                });
+            }
+        }
 
-                if (closestEnemyQuerySystem != null && !closestEnemyQuerySystem.IsCavalryFormation && !closestEnemyQuerySystem.IsRangedCavalryFormation)
+        [HarmonyPatch("TickOccasionally")]
+        public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            List<CodeInstruction> codes = instructions.ToList();
+            int index = 0;
+
+            for (int i = 0; i < codes.Count; i++)
+            {
+                if (codes[i].operand is MethodInfo method && method == AccessTools.Method(typeof(Formation), "SetMovementOrder"))
+                {
+                    index = i;
+                }
+            }
+
+            // Remove the vanilla movement order.
+            codes.RemoveAt(index);
+            codes.Insert(index, new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(BetterPikesBehaviorCharge), "FormUpPikemen", new Type[] { typeof(Formation), typeof(MovementOrder) })));
+
+            return codes;
+        }
+
+        private static void FormUpPikemen(Formation formation, MovementOrder currentOrder)
+        {
+            if (formation.GetCountOfUnitsWithCondition(agent => agent.IsActive() && BetterPikesHelper.IsPike(agent.WieldedWeapon)) >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation)
+            {
+                if (formation.ArrangementOrder != ArrangementOrder.ArrangementOrderCircle)
                 {
                     // If the percentage of pikemen is above a certain limit, make the formation form a deep shield wall.
                     formation.SetArrangementOrder(ArrangementOrder.ArrangementOrderShieldWall);
                     formation.SetFormOrder(FormOrder.FormOrderDeep);
-                    formation.SetMovementOrder(MovementOrder.MovementOrderAdvance);
+                    currentOrder = MovementOrder.MovementOrderAdvance;
                 }
-
-                if (formation.ArrangementOrder == ArrangementOrder.ArrangementOrderCircle)
+                else
                 {
                     int num = (int)MathF.Sqrt(formation.CountOfUnits), i = formation.Arrangement.UnitCount, num3 = 0;
                     float num2 = ((num * formation.UnitDiameter) + ((num - 1) * formation.Interval)) * 0.5f * 1.414213f, num4;
@@ -40,6 +75,8 @@ namespace BetterPikes
                     formation.SetFormOrder(FormOrder.FormOrderCustom(num4 * 2f));
                 }
             }
+
+            formation.SetMovementOrder(currentOrder);
         }
     }
 }
