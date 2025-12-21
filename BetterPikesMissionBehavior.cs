@@ -41,13 +41,11 @@ namespace BetterPikes
 
         public override void OnMissionTick(float dt)
         {
-            foreach (Formation formation in Mission.Teams.SelectMany(team => team.FormationsIncludingSpecialAndEmpty.Where(f => f.CountOfUnits > 0 && f.QuerySystem.IsInfantryFormation && f.CachedAveragePosition.IsValid)))
+            foreach (Formation formation in Mission.Teams.SelectMany(team => team.FormationsIncludingSpecialAndEmpty.Where(f => f.CountOfUnits > 0 && f.QuerySystem.IsInfantryFormation)))
             {
-                bool isPikeFormation = formation.GetCountOfUnitsWithCondition(a => a.IsActive() && BetterPikesHelper.IsPike(a.WieldedWeapon)) >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation && formation.FiringOrder != FiringOrder.FiringOrderHoldYourFire;
-                bool hasEnemy = formation.HasAnyEnemyFormationsThatIsNotEmpty();
+                bool isPikeFormation = formation.GetCountOfUnitsWithCondition(a => a.IsActive() && BetterPikesHelper.IsPike(a.WieldedWeapon)) >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation && formation.FiringOrder != FiringOrder.FiringOrderHoldYourFire, hasEnemy = formation.HasAnyEnemyFormationsThatIsNotEmpty();
                 Vec2 positionOfClosestEnemyFormation = hasEnemy ? formation.CachedClosestEnemyFormation.Formation.CachedAveragePosition : Vec2.Invalid;
-                bool isEnemyNearby = hasEnemy && formation.CachedAveragePosition.Distance(positionOfClosestEnemyFormation) <= BetterPikesSettings.Instance.MinDistanceToReadyPikes;
-                bool isLoose = formation.IsLoose, isInCircleArrangement = formation.ArrangementOrder == ArrangementOrder.ArrangementOrderCircle;
+                bool isEnemyNearby = hasEnemy && formation.CachedAveragePosition.Distance(positionOfClosestEnemyFormation) <= BetterPikesSettings.Instance.MinDistanceToReadyPikes, isLoose = formation.IsLoose, isInCircleArrangement = formation.ArrangementOrder == ArrangementOrder.ArrangementOrderCircle;
 
                 foreach (Agent agent in formation.GetUnitsWithoutDetachedOnes().Where(a => a.IsHuman && a.IsActive()))
                 {
