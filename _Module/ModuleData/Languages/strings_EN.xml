@@ -11,8 +11,8 @@
     <string id="BetterPikes05" text="Multiplier for blow magnitude of pikes. Default is 3." />
     <string id="BetterPikes06" text="Minimum Pikemen in Pike Formation" />
     <string id="BetterPikes07" text="Minimum percentage of pikemen in a formation to be treated as a pike formation. Default is 50%." />
-    <string id="BetterPikes08" text="Minimum Distance to Ready Pikes" />
-    <string id="BetterPikes09" text="Minimum distance to nearby enemies for pikemen to ready their pikes. Default is 50m." />
+    <string id="BetterPikes08" text="Maximum Distance to Ready Pikes" />
+    <string id="BetterPikes09" text="Maximum distance to nearby enemies for pikemen to ready their pikes. Default is 50m." />
     <string id="BetterPikes10" text="Pikemen Can Block" />
     <string id="BetterPikes11" text="Pikemen can block with their pikes (unrealistic). Disabled by default." />
     <string id="BetterPikes12" text="Pikemen Can Attack Overhead" />

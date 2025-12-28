@@ -11,8 +11,8 @@
     <string id="BetterPikes05" text="长矛打击强度的乘数。默认为3。" />
     <string id="BetterPikes06" text="长矛编队中的最少长矛兵" />
     <string id="BetterPikes07" text="编队被视为长矛编队中的最少长矛兵百分比。默认为50%。" />
-    <string id="BetterPikes08" text="准备长矛的最少距离" />
-    <string id="BetterPikes09" text="长矛兵准备长矛时与附近敌人的最少距离。默认为50m。" />
+    <string id="BetterPikes08" text="准备长矛的最多距离" />
+    <string id="BetterPikes09" text="长矛兵准备长矛时与附近敌人的最多距离。默认为50m。" />
     <string id="BetterPikes10" text="长矛兵可以格挡" />
     <string id="BetterPikes11" text="长矛兵可以使用长矛格挡（不真实）。默认禁用。" />
     <string id="BetterPikes12" text="长矛兵可以从高处攻击" />
