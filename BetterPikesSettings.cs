@@ -22,9 +22,9 @@ namespace BetterPikes
         [SettingPropertyGroup("{=BetterPikes02}Limits", GroupOrder = 1)]
         public float MinPikemenPercentInPikeFormation { get; set; } = 0.5f;
 
-        [SettingPropertyInteger("{=BetterPikes08}Minimum Distance to Ready Pikes", 0, 1000, "0m", Order = 1, RequireRestart = false, HintText = "{=BetterPikes09}Minimum distance to nearby enemies for pikemen to ready their pikes. Default is 50m.")]
+        [SettingPropertyInteger("{=BetterPikes08}Maximum Distance to Ready Pikes", 0, 1000, "0m", Order = 1, RequireRestart = false, HintText = "{=BetterPikes09}Maximum distance to nearby enemies for pikemen to ready their pikes. Default is 50m.")]
         [SettingPropertyGroup("{=BetterPikes02}Limits", GroupOrder = 1)]
-        public int MinDistanceToReadyPikes { get; set; } = 50;
+        public int MaxDistanceToReadyPikes { get; set; } = 50;
 
         [SettingPropertyBool("{=BetterPikes10}Pikemen Can Block", Order = 0, RequireRestart = false, HintText = "{=BetterPikes11}Pikemen can block with their pikes (unrealistic). Disabled by default.")]
         [SettingPropertyGroup("{=BetterPikes03}Combat", GroupOrder = 2)]

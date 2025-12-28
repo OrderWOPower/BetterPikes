@@ -46,7 +46,7 @@ namespace BetterPikes
                 bool isPikeFormation = formation.GetCountOfUnitsWithCondition(a => a.IsActive() && BetterPikesHelper.IsPike(a.WieldedWeapon)) >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation && formation.FiringOrder != FiringOrder.FiringOrderHoldYourFire;
                 bool hasEnemy = formation.HasAnyEnemyFormationsThatIsNotEmpty() && formation.CachedClosestEnemyFormation != null;
                 Vec2 positionOfClosestEnemyFormation = hasEnemy ? formation.CachedClosestEnemyFormation.Formation.CachedAveragePosition : Vec2.Invalid;
-                bool isEnemyNearby = hasEnemy && formation.CachedAveragePosition.Distance(positionOfClosestEnemyFormation) <= BetterPikesSettings.Instance.MinDistanceToReadyPikes, isLoose = formation.IsLoose, isInCircleArrangement = formation.ArrangementOrder == ArrangementOrder.ArrangementOrderCircle;
+                bool isEnemyNearby = hasEnemy && formation.CachedAveragePosition.Distance(positionOfClosestEnemyFormation) <= BetterPikesSettings.Instance.MaxDistanceToReadyPikes, isLoose = formation.IsLoose, isInCircleArrangement = formation.ArrangementOrder == ArrangementOrder.ArrangementOrderCircle;
 
                 foreach (Agent agent in formation.GetUnitsWithoutDetachedOnes().Where(a => a.IsHuman && a.IsActive()))
                 {
@@ -68,7 +68,7 @@ namespace BetterPikes
                         {
                             ActionIndexCache currentAction = agent.GetCurrentAction(1);
 
-                            if ((isEnemyNearby || isInCircleArrangement) && BetterPikesHelper.IsPike(agent.WieldedWeapon) && agent.IsAIControlled && !agent.IsDoingPassiveAttack && distanceFromCurrentGlobalPosition < 2)
+                            if ((isEnemyNearby || isInCircleArrangement) && BetterPikesHelper.IsPike(agent.WieldedWeapon) && agent.IsAIControlled && !agent.IsDoingPassiveAttack && distanceFromCurrentGlobalPosition < 3)
                             {
                                 if (currentAction != _readyThrustActionIndex && currentAction != _guardUpActionIndex)
                                 {
