@@ -113,7 +113,7 @@ namespace BetterPikes
                     // Get the closest agent colliding with the pike handle.
                     Agent collidedAgent = Mission.RayCastForClosestAgent(handleFrontFrame.origin, handleBackFrame.origin, -1, 0.04f, out _);
 
-                    if (collidedAgent != null && collidedAgent.IsHuman && collidedAgent.IsActive() && collidedAgent.IsEnemyOf(agent) && !collidedAgent.HasMount && !collidedAgent.IsInBeingStruckAction && !collidedAgent.GetCurrentAction(1).GetName().Contains("fall"))
+                    if (collidedAgent != null && collidedAgent.IsHuman && collidedAgent.IsActive() && collidedAgent.IsEnemyOf(agent) && !collidedAgent.HasMount && !collidedAgent.IsInBeingStruckAction && collidedAgent.GetCurrentActionType(1) != Agent.ActionCodeType.Fall)
                     {
                         Blow blow = new Blow(agent.Index);
                         AttackCollisionData attackCollisionDataForDebugPurpose;
@@ -121,7 +121,7 @@ namespace BetterPikes
                         blow.DamageType = DamageTypes.Blunt;
                         blow.BoneIndex = collidedAgent.Monster.HeadLookDirectionBoneIndex;
                         blow.GlobalPosition = collidedAgent.Position;
-                        blow.GlobalPosition.z = blow.GlobalPosition.z + collidedAgent.GetEyeGlobalHeight();
+                        blow.GlobalPosition.z += collidedAgent.GetEyeGlobalHeight();
                         blow.BaseMagnitude = BetterPikesSettings.Instance.PikeKnockbackMagnitude;
                         blow.WeaponRecord.FillAsMeleeBlow(null, null, -1, -1);
                         blow.InflictedDamage = 0;
