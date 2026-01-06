@@ -46,7 +46,7 @@ namespace BetterPikes
             {
                 foreach (Formation formation in Mission.Teams.SelectMany(team => team.FormationsIncludingSpecialAndEmpty.Where(f => f.CountOfUnits > 0 && f.QuerySystem.IsInfantryFormation)))
                 {
-                    bool isPikeFormation = formation.GetCountOfUnitsWithCondition(a => a.IsActive() && BetterPikesHelper.IsPike(a.WieldedWeapon)) >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation && formation.FiringOrder != FiringOrder.FiringOrderHoldYourFire;
+                    bool isPikeFormation = formation.GetCountOfUnitsWithCondition(a => BetterPikesHelper.IsPike(a.WieldedWeapon)) >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation && formation.FiringOrder != FiringOrder.FiringOrderHoldYourFire;
                     bool hasEnemy = formation.HasAnyEnemyFormationsThatIsNotEmpty() && formation.CachedClosestEnemyFormation != null;
                     Vec2 positionOfClosestEnemyFormation = hasEnemy ? formation.CachedClosestEnemyFormation.Formation.CachedAveragePosition : Vec2.Invalid;
                     bool isEnemyNearby = hasEnemy && formation.CachedAveragePosition.Distance(positionOfClosestEnemyFormation) <= BetterPikesSettings.Instance.MaxDistanceToReadyPikes, isLoose = formation.IsLoose;
