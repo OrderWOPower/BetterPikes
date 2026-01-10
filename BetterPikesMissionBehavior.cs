@@ -122,7 +122,7 @@ namespace BetterPikes
                         blow.BoneIndex = collidedAgent.Monster.HeadLookDirectionBoneIndex;
                         blow.GlobalPosition = collidedAgent.Position;
                         blow.GlobalPosition.z += collidedAgent.GetEyeGlobalHeight();
-                        blow.BaseMagnitude = BetterPikesSettings.Instance.PikeKnockbackMagnitude;
+                        blow.BaseMagnitude = 200f;
                         blow.WeaponRecord.FillAsMeleeBlow(null, null, -1, -1);
                         blow.InflictedDamage = 0;
                         blow.SwingDirection = agent.LookDirection;
