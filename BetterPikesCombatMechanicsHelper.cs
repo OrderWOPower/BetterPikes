@@ -18,18 +18,18 @@ namespace BetterPikes
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("CalculateBaseMeleeBlowMagnitude")]
-        public static void Postfix2(ref float __result, AttackInformation attackInformation)
+        [HarmonyPatch("ComputeBlowMagnitude")]
+        public static void Postfix2(AttackInformation attackInformation, ref float baseMagnitude)
         {
             if (BetterPikesHelper.IsPike(attackInformation.AttackerWeapon))
             {
-                // Multiply the base blow magnitude of pikes.
-                __result *= BetterPikesSettings.Instance.PikeBlowMagnitudeMultiplier;
+                // Multiply the blow magnitude of pikes.
+                baseMagnitude *= BetterPikesSettings.Instance.PikeBlowMagnitudeMultiplier;
 
                 if (attackInformation.VictimAgent != null && attackInformation.VictimAgent.HasMount)
                 {
-                    // Further multiply the base blow magnitude of pikes versus riders.
-                    __result *= 10;
+                    // Further multiply the blow magnitude of pikes versus riders.
+                    baseMagnitude *= 5;
                 }
             }
         }
