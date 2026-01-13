@@ -25,7 +25,7 @@ namespace BetterPikes
         {
             Formation formation = __instance.Formation;
 
-            if (formation.GetCountOfUnitsWithCondition(agent => agent.IsActive() && BetterPikesHelper.IsPike(agent.WieldedWeapon)) >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation)
+            if (BetterPikesHelper.IsPikeFormation(formation))
             {
                 bool isEnemyNearby = formation.CachedClosestEnemyFormation != null && formation.CachedAveragePosition.Distance(formation.CachedClosestEnemyFormation.Formation.CachedAveragePosition) <= 100;
                 Vec2 orderPosition = formation.OrderPosition;

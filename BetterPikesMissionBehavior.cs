@@ -46,8 +46,7 @@ namespace BetterPikes
             {
                 foreach (Formation formation in Mission.Teams.SelectMany(team => team.FormationsIncludingSpecialAndEmpty.Where(f => f.CountOfUnits > 0 && f.QuerySystem.IsInfantryFormation)))
                 {
-                    bool isPikeFormation = formation.GetCountOfUnitsWithCondition(a => BetterPikesHelper.IsPike(a.WieldedWeapon)) >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation && formation.FiringOrder != FiringOrder.FiringOrderHoldYourFire;
-                    bool hasEnemy = formation.HasAnyEnemyFormationsThatIsNotEmpty() && formation.CachedClosestEnemyFormation != null;
+                    bool isPikeFormation = BetterPikesHelper.IsPikeFormation(formation), hasEnemy = formation.HasAnyEnemyFormationsThatIsNotEmpty() && formation.CachedClosestEnemyFormation != null;
                     Vec2 positionOfClosestEnemyFormation = hasEnemy ? formation.CachedClosestEnemyFormation.Formation.CachedAveragePosition : Vec2.Invalid;
                     bool isEnemyNearby = hasEnemy && formation.CachedAveragePosition.Distance(positionOfClosestEnemyFormation) <= BetterPikesSettings.Instance.MaxDistanceToReadyPikes, isLoose = formation.IsLoose;
                     bool isInCircleArrangement = formation.ArrangementOrder == ArrangementOrder.ArrangementOrderCircle, isInSquareArrangement = formation.ArrangementOrder == ArrangementOrder.ArrangementOrderSquare;
@@ -109,7 +108,7 @@ namespace BetterPikes
                     // Find the frame of the agent's main hand.
                     MatrixFrame mainHandFrame = agent.AgentVisuals.GetGlobalFrame().TransformToParent(agent.AgentVisuals.GetSkeleton().GetBoneEntitialFrameWithIndex(agent.Monster.MainHandItemBoneIndex));
                     MatrixFrame handleFrontFrame = new MatrixFrame(mainHandFrame.rotation, mainHandFrame.origin).Elevate((handleLength * 0.4f) + handleOffset);
-                    MatrixFrame handleBackFrame = new MatrixFrame(mainHandFrame.rotation, mainHandFrame.origin).Elevate(handleLength * 0.2f);
+                    MatrixFrame handleBackFrame = new MatrixFrame(mainHandFrame.rotation, mainHandFrame.origin).Elevate((handleLength * 0.3f) + handleOffset);
                     // Get the closest agent colliding with the pike handle.
                     Agent collidedAgent = Mission.RayCastForClosestAgent(handleFrontFrame.origin, handleBackFrame.origin, -1, 0.04f, out _);
 

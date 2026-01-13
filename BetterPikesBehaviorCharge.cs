@@ -17,7 +17,7 @@ namespace BetterPikes
         {
             Formation formation = __instance.Formation;
 
-            if (formation.GetCountOfUnitsWithCondition(agent => agent.IsActive() && BetterPikesHelper.IsPike(agent.WieldedWeapon)) >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation)
+            if (BetterPikesHelper.IsPikeFormation(formation))
             {
                 formation.ApplyActionOnEachUnit(delegate (Agent agent)
                 {
@@ -49,7 +49,7 @@ namespace BetterPikes
 
         private static void FormUpPikemen(Formation formation, MovementOrder currentOrder)
         {
-            if (formation.GetCountOfUnitsWithCondition(agent => agent.IsActive() && BetterPikesHelper.IsPike(agent.WieldedWeapon)) >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation)
+            if (BetterPikesHelper.IsPikeFormation(formation))
             {
                 if (formation.ArrangementOrder != ArrangementOrder.ArrangementOrderCircle)
                 {
