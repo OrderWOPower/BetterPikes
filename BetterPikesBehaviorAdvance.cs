@@ -27,7 +27,6 @@ namespace BetterPikes
 
             if (BetterPikesHelper.IsPikeFormation(formation))
             {
-                bool isEnemyNearby = formation.CachedClosestEnemyFormation != null && formation.CachedAveragePosition.Distance(formation.CachedClosestEnemyFormation.Formation.CachedAveragePosition) <= 100;
                 Vec2 orderPosition = formation.OrderPosition;
 
                 // If the percentage of pikemen is above a certain limit, make the formation form a deep shield wall.
@@ -43,7 +42,7 @@ namespace BetterPikes
                 {
                     Vec2 currentGlobalPositionOfUnit = formation.GetCurrentGlobalPositionOfUnit(agent, true);
 
-                    if (!isEnemyNearby && agent.CanMoveDirectlyToPosition(orderPosition) && agent.CanMoveDirectlyToPosition(currentGlobalPositionOfUnit) && (!_hasFormedUp || agent.Position.AsVec2.Distance(currentGlobalPositionOfUnit) >= 2))
+                    if (agent.CanMoveDirectlyToPosition(orderPosition) && agent.CanMoveDirectlyToPosition(currentGlobalPositionOfUnit) && (!_hasFormedUp || agent.Position.AsVec2.Distance(currentGlobalPositionOfUnit) >= 1))
                     {
                         agent.SetTargetPosition(currentGlobalPositionOfUnit);
                     }
