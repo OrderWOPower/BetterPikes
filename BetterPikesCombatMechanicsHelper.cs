@@ -29,7 +29,7 @@ namespace BetterPikes
                 if (attackInformation.VictimAgent != null && attackInformation.VictimAgent.HasMount)
                 {
                     // Further multiply the blow magnitude of pikes versus riders.
-                    baseMagnitude *= 5;
+                    baseMagnitude *= 10;
                 }
             }
         }
