@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using System;
+using HarmonyLib;
 using TaleWorlds.MountAndBlade;
 
 namespace BetterPikes
@@ -16,6 +17,9 @@ namespace BetterPikes
 				__result = true;
 			}
 		}
+
+		[HarmonyPatch("DecideMountRearedByBlow")]
+		public static Exception Finalizer() => null;
 
 		[HarmonyPostfix]
 		[HarmonyPatch("ComputeBlowMagnitude")]
