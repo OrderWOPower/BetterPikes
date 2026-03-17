@@ -1,4 +1,6 @@
-﻿using TaleWorlds.MountAndBlade;
+﻿using System;
+using TaleWorlds.Library;
+using TaleWorlds.MountAndBlade;
 
 namespace BetterPikes
 {
@@ -6,6 +8,18 @@ namespace BetterPikes
 	{
 		public static bool IsPike(MissionWeapon weapon) => !weapon.IsEmpty && weapon.GetWeaponComponentDataForUsage(0).WeaponDescriptionId != null && weapon.GetWeaponComponentDataForUsage(0).WeaponDescriptionId.Contains("Pike");
 
-		public static bool IsPikeFormation(Formation formation) => formation.GetCountOfUnitsWithCondition(agent => IsPike(agent.WieldedWeapon)) >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation && formation.FiringOrder != FiringOrder.FiringOrderHoldYourFire;
+		public static bool IsPikeFormation(Formation formation)
+		{
+			try
+			{
+				return formation.GetCountOfUnitsWithCondition(agent => IsPike(agent.WieldedWeapon)) >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation && formation.FiringOrder != FiringOrder.FiringOrderHoldYourFire;
+			}
+			catch (Exception ex)
+			{
+				InformationManager.DisplayMessage(new InformationMessage(ex.ToString()));
+
+				return false;
+			}
+		}
 	}
 }

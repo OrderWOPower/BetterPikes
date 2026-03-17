@@ -1,9 +1,4 @@
 ﻿using HarmonyLib;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Reflection.Emit;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
 
@@ -12,8 +7,9 @@ namespace BetterPikes
 	[HarmonyPatch(typeof(BehaviorCharge))]
 	public class BetterPikesBehaviorCharge
 	{
+		[HarmonyPostfix]
 		[HarmonyPatch("OnBehaviorActivatedAux")]
-		protected static void Postfix(BehaviorCharge __instance)
+		protected static void Postfix1(BehaviorCharge __instance)
 		{
 			Formation formation = __instance.Formation;
 
@@ -26,37 +22,17 @@ namespace BetterPikes
 			}
 		}
 
+		[HarmonyPostfix]
 		[HarmonyPatch("TickOccasionally")]
-		public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+		public static void Postfix2(BehaviorCharge __instance)
 		{
-			List<CodeInstruction> codes = instructions.ToList();
-			int index = 0;
+			Formation formation = __instance.Formation;
 
-			for (int i = 0; i < codes.Count; i++)
-			{
-				if (codes[i].operand is MethodInfo method && method == AccessTools.Method(typeof(Formation), "SetMovementOrder"))
-				{
-					index = i;
-				}
-			}
-
-			// Remove the vanilla movement order.
-			codes.RemoveAt(index);
-			codes.Insert(index, new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(BetterPikesBehaviorCharge), "FormUpPikemen", new Type[] { typeof(Formation), typeof(MovementOrder) })));
-
-			return codes;
-		}
-
-		private static void FormUpPikemen(Formation formation, MovementOrder currentOrder)
-		{
 			if (BetterPikesHelper.IsPikeFormation(formation))
 			{
 				if (formation.ArrangementOrder != ArrangementOrder.ArrangementOrderCircle)
 				{
-					// If the percentage of pikemen is above a certain limit, make the formation form a deep shield wall.
-					formation.SetArrangementOrder(ArrangementOrder.ArrangementOrderShieldWall);
 					formation.SetFormOrder(FormOrder.FormOrderDeep);
-					currentOrder = MovementOrder.MovementOrderAdvance;
 				}
 				else
 				{
@@ -75,8 +51,6 @@ namespace BetterPikes
 					formation.SetFormOrder(FormOrder.FormOrderCustom(num4 * 2f));
 				}
 			}
-
-			formation.SetMovementOrder(currentOrder);
 		}
 	}
 }

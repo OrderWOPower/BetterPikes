@@ -29,8 +29,6 @@ namespace BetterPikes
 			{
 				Vec2 orderPosition = formation.OrderPosition;
 
-				// If the percentage of pikemen is above a certain limit, make the formation form a deep shield wall.
-				formation.SetArrangementOrder(ArrangementOrder.ArrangementOrderShieldWall);
 				formation.SetFormOrder(FormOrder.FormOrderDeep);
 
 				if ((formation.CachedFormationIntegrityData.DeviationOfPositionsExcludeFarAgents < 1 && _formUpTimer.ElapsedTime() >= 1f) || _formUpTimer.Check(Mission.Current.CurrentTime))
