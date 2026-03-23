@@ -19,9 +19,7 @@ namespace BetterPikes
 			mission.AddMissionBehavior(new BetterPikesMissionBehavior());
 
 			_harmony.Unpatch(AccessTools.Method(typeof(Formation), "SetMovementOrder"), AccessTools.Method(typeof(BetterPikesFormation), "Prefix1"));
-			_harmony.Unpatch(AccessTools.Method(typeof(Formation), "SetArrangementOrder"), AccessTools.Method(typeof(BetterPikesFormation), "Prefix2"));
 			_harmony.Patch(AccessTools.Method(typeof(Formation), "SetMovementOrder"), prefix: new HarmonyMethod(AccessTools.Method(typeof(BetterPikesFormation), "Prefix1"), after: new string[] { "com.rbmai" }));
-			_harmony.Patch(AccessTools.Method(typeof(Formation), "SetArrangementOrder"), prefix: new HarmonyMethod(AccessTools.Method(typeof(BetterPikesFormation), "Prefix2")));
 		}
 	}
 }

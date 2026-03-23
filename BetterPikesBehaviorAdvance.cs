@@ -1,47 +1,28 @@
 ﻿using HarmonyLib;
-using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
 
 namespace BetterPikes
 {
-	[HarmonyPatch(typeof(BehaviorAdvance))]
+	[HarmonyPatch(typeof(BehaviorAdvance), "TickOccasionally")]
 	public class BetterPikesBehaviorAdvance
 	{
-		private static bool _hasFormedUp;
-		private static Timer _formUpTimer;
-
-		[HarmonyPostfix]
-		[HarmonyPatch("OnBehaviorActivatedAux")]
-		protected static void Postfix1()
-		{
-			_hasFormedUp = false;
-			_formUpTimer = new Timer(Mission.Current.CurrentTime, 20f, false);
-		}
-
-		[HarmonyPostfix]
-		[HarmonyPatch("TickOccasionally")]
-		public static void Postfix2(BehaviorAdvance __instance)
+		public static void Postfix(BehaviorAdvance __instance)
 		{
 			Formation formation = __instance.Formation;
 
 			if (BetterPikesHelper.IsPikeFormation(formation))
 			{
+				float deviationOfPositions = formation.CachedFormationIntegrityData.DeviationOfPositionsExcludeFarAgents;
 				Vec2 orderPosition = formation.OrderPosition;
-
-				formation.SetFormOrder(FormOrder.FormOrderDeep);
-
-				if ((formation.CachedFormationIntegrityData.DeviationOfPositionsExcludeFarAgents < 1 && _formUpTimer.ElapsedTime() >= 1f) || _formUpTimer.Check(Mission.Current.CurrentTime))
-				{
-					_hasFormedUp = true;
-				}
 
 				formation.ApplyActionOnEachUnit(delegate (Agent agent)
 				{
 					Vec2 currentGlobalPositionOfUnit = formation.GetCurrentGlobalPositionOfUnit(agent, true);
 
-					if (agent.CanMoveDirectlyToPosition(orderPosition) && agent.CanMoveDirectlyToPosition(currentGlobalPositionOfUnit) && (!_hasFormedUp || agent.Position.AsVec2.Distance(currentGlobalPositionOfUnit) >= 1))
+					if (deviationOfPositions >= 0.5f && agent.CanMoveDirectlyToPosition(currentGlobalPositionOfUnit) && agent.CanMoveDirectlyToPosition(orderPosition))
 					{
+						// Ensure that the pikemen maintain their formation.
 						agent.SetTargetPosition(currentGlobalPositionOfUnit);
 					}
 					else

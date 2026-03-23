@@ -47,9 +47,8 @@ namespace BetterPikes
 				foreach (Formation formation in Mission.Teams.SelectMany(team => team.FormationsIncludingSpecialAndEmpty.Where(f => f.CountOfUnits > 0 && f.QuerySystem.IsInfantryFormation)))
 				{
 					bool isPikeFormation = BetterPikesHelper.IsPikeFormation(formation), hasEnemy = formation.HasAnyEnemyFormationsThatIsNotEmpty() && formation.CachedClosestEnemyFormation != null;
-					Vec2 positionOfClosestEnemyFormation = hasEnemy ? formation.CachedClosestEnemyFormation.Formation.CachedAveragePosition : Vec2.Invalid;
-					float distanceFromClosestEnemyFormation = formation.CachedAveragePosition.Distance(positionOfClosestEnemyFormation);
-					bool isEnemyNearby = hasEnemy && distanceFromClosestEnemyFormation <= BetterPikesSettings.Instance.MaxDistanceToReadyPikes, isLoose = formation.IsLoose;
+					Vec2 formationPosition = formation.CachedAveragePosition, closestEnemyFormationPosition = hasEnemy ? formation.CachedClosestEnemyFormation.Formation.CachedAveragePosition : Vec2.Invalid;
+					bool isEnemyNearby = hasEnemy && formationPosition.Distance(closestEnemyFormationPosition) <= BetterPikesSettings.Instance.MaxDistanceToReadyPikes, isLoose = formation.IsLoose;
 					bool isInCircleArrangement = formation.ArrangementOrder == ArrangementOrder.ArrangementOrderCircle, isInSquareArrangement = formation.ArrangementOrder == ArrangementOrder.ArrangementOrderSquare;
 
 					foreach (Agent agent in formation.GetUnitsWithoutDetachedOnes().Where(a => a.IsHuman && a.IsActive()))
@@ -58,13 +57,13 @@ namespace BetterPikes
 
 						if (isPikeFormation)
 						{
-							float distanceFromCurrentGlobalPosition = agent.Position.AsVec2.Distance(formation.GetCurrentGlobalPositionOfUnit(agent, true));
+							Vec2 agentPosition = agent.Position.AsVec2;
 
 							agent.SetMaximumSpeedLimit(agent.GetMaximumForwardUnlimitedSpeed(), false);
 
-							if (hasEnemy && !isLoose && (distanceFromCurrentGlobalPosition < 1 || agent.Position.AsVec2.Distance(positionOfClosestEnemyFormation) <= distanceFromClosestEnemyFormation))
+							if (hasEnemy && !isLoose && (agentPosition.Distance(formation.GetCurrentGlobalPositionOfUnit(agent, true)) < 1 || agentPosition.Distance(closestEnemyFormationPosition) <= formationPosition.Distance(closestEnemyFormationPosition)))
 							{
-								// If the pikemen have enemies, make the pikemen walk.
+								// Make the pikemen walk.
 								agent.SetScriptedFlags(agent.GetScriptedFlags() | Agent.AIScriptedFrameFlags.DoNotRun);
 							}
 
@@ -72,13 +71,13 @@ namespace BetterPikes
 							{
 								ActionIndexCache currentAction = agent.GetCurrentAction(1);
 
-								if (((isEnemyNearby && !isLoose) || isInCircleArrangement || isInSquareArrangement) && BetterPikesHelper.IsPike(agent.WieldedWeapon) && agent.IsAIControlled && !agent.IsDoingPassiveAttack && distanceFromCurrentGlobalPosition < 2)
+								if (((isEnemyNearby && !isLoose) || isInCircleArrangement || isInSquareArrangement) && BetterPikesHelper.IsPike(agent.WieldedWeapon) && agent.IsAIControlled && !agent.IsDoingPassiveAttack && agentPosition.Distance(formationPosition) < (formation.Width / 2) + 1)
 								{
 									if (currentAction != _readyThrustActionIndex && currentAction != _guardUpActionIndex)
 									{
 										agent.GetFormationFileAndRankInfo(out _, out int rankIndex);
 
-										// If the pikemen's enemies are nearby, make the pikemen ready their pikes in different positions.
+										// Make the pikemen ready their pikes in different positions.
 										if (rankIndex < 5)
 										{
 											// Make the first five ranks ready their pikes for a thrust.

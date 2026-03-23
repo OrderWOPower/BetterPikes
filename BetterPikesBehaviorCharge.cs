@@ -19,6 +19,12 @@ namespace BetterPikes
 				{
 					agent.ClearTargetFrame();
 				});
+
+				if (formation.ArrangementOrder == ArrangementOrder.ArrangementOrderCircle)
+				{
+					// If the pikemen are in circle formation, make the circle as tight as possible.
+					formation.SetPositioning(formation.CachedMedianPosition, formation.Direction, 1);
+				}
 			}
 		}
 
@@ -28,28 +34,22 @@ namespace BetterPikes
 		{
 			Formation formation = __instance.Formation;
 
-			if (BetterPikesHelper.IsPikeFormation(formation))
+			if (BetterPikesHelper.IsPikeFormation(formation) && formation.ArrangementOrder == ArrangementOrder.ArrangementOrderCircle)
 			{
-				if (formation.ArrangementOrder != ArrangementOrder.ArrangementOrderCircle)
-				{
-					formation.SetFormOrder(FormOrder.FormOrderDeep);
-				}
-				else
-				{
-					int num = (int)MathF.Sqrt(formation.CountOfUnits), i = formation.Arrangement.UnitCount, num3 = 0;
-					float num2 = ((num * formation.UnitDiameter) + ((num - 1) * formation.Interval)) * 0.5f * 1.414213f, num4;
+				Vec2 formationPosition = formation.CachedAveragePosition;
 
-					while (i > 0)
+				formation.ApplyActionOnEachUnit(delegate (Agent agent)
+				{
+					if (agent.Position.AsVec2.Distance(formationPosition) >= (formation.Width / 2) + 1 && agent.CanMoveDirectlyToPosition(formationPosition))
 					{
-						double a = (double)(num2 + (formation.Distance * num3) + (formation.UnitDiameter * (num3 + 1))) * 3.141592653589793 * 2.0 / (double)(formation.UnitDiameter + formation.Interval);
-
-						i -= MathF.Ceiling(a);
-						num3++;
+						// Ensure that the pikemen maintain their formation.
+						agent.SetTargetPosition(formationPosition);
 					}
-
-					num4 = num2 + (num3 * formation.UnitDiameter) + ((num3 - 1) * formation.Distance);
-					formation.SetFormOrder(FormOrder.FormOrderCustom(num4 * 2f));
-				}
+					else
+					{
+						agent.ClearTargetFrame();
+					}
+				});
 			}
 		}
 	}
