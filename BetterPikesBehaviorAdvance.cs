@@ -13,23 +13,45 @@ namespace BetterPikes
 
 			if (BetterPikesHelper.IsPikeFormation(formation))
 			{
-				float deviationOfPositions = formation.CachedFormationIntegrityData.DeviationOfPositionsExcludeFarAgents;
-				Vec2 orderPosition = formation.OrderPosition;
+				float deviationOfPositions = formation.CachedFormationIntegrityData.DeviationOfPositionsExcludeFarAgents, formationWidth = formation.Width;
+				Vec2 orderPosition = formation.OrderPosition, formationPosition = formation.CachedAveragePosition;
 
-				formation.ApplyActionOnEachUnit(delegate (Agent agent)
+				formation.SetArrangementOrder(ArrangementOrder.ArrangementOrderShieldWall);
+
+				if (formation.ArrangementOrder != ArrangementOrder.ArrangementOrderCircle)
 				{
-					Vec2 currentGlobalPositionOfUnit = formation.GetCurrentGlobalPositionOfUnit(agent, true);
+					formation.ApplyActionOnEachUnit(delegate (Agent agent)
+					{
+						Vec2 currentGlobalPositionOfUnit = formation.GetCurrentGlobalPositionOfUnit(agent, true);
 
-					if (deviationOfPositions >= 0.5f && agent.CanMoveDirectlyToPosition(currentGlobalPositionOfUnit) && agent.CanMoveDirectlyToPosition(orderPosition))
+						if (deviationOfPositions >= 1 && agent.CanMoveDirectlyToPosition(currentGlobalPositionOfUnit) && agent.CanMoveDirectlyToPosition(orderPosition))
+						{
+							// Ensure that the pikemen maintain their formation.
+							agent.SetTargetPosition(currentGlobalPositionOfUnit);
+						}
+						else
+						{
+							agent.ClearTargetFrame();
+						}
+					});
+				}
+				else
+				{
+					// If the pikemen are in circle formation, make the circle as tight as possible.
+					formation.SetPositioning(formation.CachedMedianPosition, formation.Direction, 0);
+					formation.ApplyActionOnEachUnit(delegate (Agent agent)
 					{
-						// Ensure that the pikemen maintain their formation.
-						agent.SetTargetPosition(currentGlobalPositionOfUnit);
-					}
-					else
-					{
-						agent.ClearTargetFrame();
-					}
-				});
+						if (agent.Position.AsVec2.Distance(formationPosition) >= (formationWidth / 2) + 1 && agent.CanMoveDirectlyToPosition(formationPosition))
+						{
+							// Ensure that the pikemen maintain their formation.
+							agent.SetTargetPosition(formationPosition);
+						}
+						else
+						{
+							agent.ClearTargetFrame();
+						}
+					});
+				}
 			}
 		}
 	}

@@ -50,6 +50,7 @@ namespace BetterPikes
 					Vec2 formationPosition = formation.CachedAveragePosition, closestEnemyFormationPosition = hasEnemy ? formation.CachedClosestEnemyFormation.Formation.CachedAveragePosition : Vec2.Invalid;
 					bool isEnemyNearby = hasEnemy && formationPosition.Distance(closestEnemyFormationPosition) <= BetterPikesSettings.Instance.MaxDistanceToReadyPikes, isLoose = formation.IsLoose;
 					bool isInCircleArrangement = formation.ArrangementOrder == ArrangementOrder.ArrangementOrderCircle, isInSquareArrangement = formation.ArrangementOrder == ArrangementOrder.ArrangementOrderSquare;
+					float formationWidth = formation.Width;
 
 					foreach (Agent agent in formation.GetUnitsWithoutDetachedOnes().Where(a => a.IsHuman && a.IsActive()))
 					{
@@ -71,7 +72,7 @@ namespace BetterPikes
 							{
 								ActionIndexCache currentAction = agent.GetCurrentAction(1);
 
-								if (((isEnemyNearby && !isLoose) || isInCircleArrangement || isInSquareArrangement) && BetterPikesHelper.IsPike(agent.WieldedWeapon) && agent.IsAIControlled && !agent.IsDoingPassiveAttack && agentPosition.Distance(formationPosition) < (formation.Width / 2) + 1)
+								if (((isEnemyNearby && !isLoose) || isInCircleArrangement || isInSquareArrangement) && BetterPikesHelper.IsPike(agent.WieldedWeapon) && agent.IsAIControlled && !agent.IsDoingPassiveAttack && agentPosition.Distance(formationPosition) < (formationWidth / 2) + 1)
 								{
 									if (currentAction != _readyThrustActionIndex && currentAction != _guardUpActionIndex)
 									{

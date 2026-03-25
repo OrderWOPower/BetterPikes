@@ -1,4 +1,6 @@
-﻿using HarmonyLib;
+﻿using System.Collections.Generic;
+using HarmonyLib;
+using TaleWorlds.Engine;
 using TaleWorlds.MountAndBlade;
 
 namespace BetterPikes
@@ -6,12 +8,38 @@ namespace BetterPikes
 	[HarmonyPatch(typeof(Formation))]
 	public class BetterPikesFormation
 	{
+		private static readonly Dictionary<Formation, WorldPosition> _holdPositions = new Dictionary<Formation, WorldPosition>();
+
 		public static void Prefix1(Formation __instance, ref MovementOrder input)
 		{
-			if (BetterPikesHelper.IsPikeFormation(__instance) && __instance.IsAIControlled && __instance.ArrangementOrder != ArrangementOrder.ArrangementOrderCircle)
+			if (BetterPikesHelper.IsPikeFormation(__instance) && __instance.IsAIControlled)
 			{
-				// Make the pikemen advance.
-				input = MovementOrder.MovementOrderAdvance;
+				if (__instance.CachedClosestEnemyFormation != null)
+				{
+					if (__instance.CachedClosestEnemyFormation.IsCavalryFormation)
+					{
+						if (!_holdPositions.TryGetValue(__instance, out WorldPosition holdPosition))
+						{
+							_holdPositions.Add(__instance, __instance.CachedMedianPosition);
+						}
+						else
+						{
+							// If the closest enemy formation is cavalry, make the pikemen hold their position.
+							input = MovementOrder.MovementOrderMove(holdPosition);
+						}
+					}
+					else
+					{
+						_holdPositions.Remove(__instance);
+
+						// Else, make the pikemen advance.
+						input = MovementOrder.MovementOrderAdvance;
+					}
+				}
+				else
+				{
+					input = MovementOrder.MovementOrderStop;
+				}
 			}
 		}
 
