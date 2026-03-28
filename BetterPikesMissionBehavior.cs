@@ -1,8 +1,8 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
+using TaleWorlds.MountAndBlade.AI.AgentComponents;
 
 namespace BetterPikes
 {
@@ -29,83 +29,19 @@ namespace BetterPikes
 
 		public override void OnAgentPanicked(Agent affectedAgent)
 		{
-			if (affectedAgent.IsHuman)
+			if (affectedAgent.IsHuman && affectedAgent.IsActive() && (affectedAgent.GetCurrentAction(1) == _readyThrustActionIndex || affectedAgent.GetCurrentAction(1) == _guardUpActionIndex))
 			{
-				affectedAgent.SetScriptedFlags(affectedAgent.GetScriptedFlags() & ~Agent.AIScriptedFrameFlags.DoNotRun);
-
-				if (affectedAgent.GetCurrentAction(1) == _readyThrustActionIndex || affectedAgent.GetCurrentAction(1) == _guardUpActionIndex)
-				{
-					affectedAgent.SetActionChannel(1, ActionIndexCache.act_none, ignorePriority: true, blendInPeriod: 0.5f);
-				}
+				affectedAgent.SetActionChannel(1, ActionIndexCache.act_none, ignorePriority: true, blendInPeriod: 0.5f);
 			}
 		}
 
 		public override void OnMissionTick(float dt)
 		{
-			try
+			foreach (Agent agent in Mission.Agents.Where(a => a.IsHuman && a.IsActive()))
 			{
-				foreach (Formation formation in Mission.Teams.SelectMany(team => team.FormationsIncludingSpecialAndEmpty.Where(f => f.CountOfUnits > 0 && f.QuerySystem.IsInfantryFormation)))
+				if (BetterPikesHelper.IsWieldingPike(agent) && (agent.GetCurrentAction(1).GetName().Contains("ready") || agent.GetCurrentAction(1).GetName().Contains("release")))
 				{
-					bool isPikeFormation = BetterPikesHelper.IsPikeFormation(formation), hasEnemy = formation.HasAnyEnemyFormationsThatIsNotEmpty() && formation.CachedClosestEnemyFormation != null;
-					Vec2 formationPosition = formation.CachedAveragePosition, closestEnemyFormationPosition = hasEnemy ? formation.CachedClosestEnemyFormation.Formation.CachedAveragePosition : Vec2.Invalid;
-					bool isEnemyNearby = hasEnemy && formationPosition.Distance(closestEnemyFormationPosition) <= BetterPikesSettings.Instance.MaxDistanceToReadyPikes, isLoose = formation.IsLoose;
-					bool isInCircleArrangement = formation.ArrangementOrder == ArrangementOrder.ArrangementOrderCircle, isInSquareArrangement = formation.ArrangementOrder == ArrangementOrder.ArrangementOrderSquare;
-					float formationWidth = formation.Width;
-
-					foreach (Agent agent in formation.GetUnitsWithoutDetachedOnes().Where(a => a.IsHuman && a.IsActive()))
-					{
-						agent.SetScriptedFlags(agent.GetScriptedFlags() & ~Agent.AIScriptedFrameFlags.DoNotRun);
-
-						if (isPikeFormation)
-						{
-							Vec2 agentPosition = agent.Position.AsVec2;
-
-							agent.SetMaximumSpeedLimit(agent.GetMaximumForwardUnlimitedSpeed(), false);
-
-							if (hasEnemy && !isLoose && (agentPosition.Distance(formation.GetCurrentGlobalPositionOfUnit(agent, true)) < 1 || agentPosition.Distance(closestEnemyFormationPosition) <= formationPosition.Distance(closestEnemyFormationPosition)))
-							{
-								// Make the pikemen walk.
-								agent.SetScriptedFlags(agent.GetScriptedFlags() | Agent.AIScriptedFrameFlags.DoNotRun);
-							}
-
-							if (MBRandom.RandomFloat < 0.2f)
-							{
-								ActionIndexCache currentAction = agent.GetCurrentAction(1);
-
-								if (((isEnemyNearby && !isLoose) || isInCircleArrangement || isInSquareArrangement) && BetterPikesHelper.IsPike(agent.WieldedWeapon) && agent.IsAIControlled && !agent.IsDoingPassiveAttack && agentPosition.Distance(formationPosition) < (formationWidth / 2) + 1)
-								{
-									if (currentAction != _readyThrustActionIndex && currentAction != _guardUpActionIndex)
-									{
-										agent.GetFormationFileAndRankInfo(out _, out int rankIndex);
-
-										// Make the pikemen ready their pikes in different positions.
-										if (rankIndex < 5)
-										{
-											// Make the first five ranks ready their pikes for a thrust.
-											agent.SetActionChannel(1, _readyThrustActionIndex, startProgress: MBRandom.RandomFloat);
-										}
-										else
-										{
-											// Make the sixth rank onwards ready their pikes at an angle.
-											agent.SetActionChannel(1, _guardUpActionIndex, startProgress: MBRandom.RandomFloat);
-										}
-									}
-								}
-								else
-								{
-									if (currentAction == _readyThrustActionIndex || currentAction == _guardUpActionIndex)
-									{
-										agent.SetActionChannel(1, ActionIndexCache.act_none, ignorePriority: true, blendInPeriod: 0.5f);
-									}
-								}
-							}
-						}
-					}
-				}
-
-				foreach (Agent agent in Mission.Agents.Where(a => a.IsHuman && a.IsActive() && BetterPikesHelper.IsPike(a.WieldedWeapon) && (a.GetCurrentAction(1).GetName().Contains("ready") || a.GetCurrentAction(1).GetName().Contains("release"))))
-				{
-					float handleLength = agent.WieldedWeapon.Item.WeaponDesign.UsedPieces[2].ScaledLength, handleOffset = agent.WieldedWeapon.Item.WeaponDesign.UsedPieces[2].ScaledPieceOffset;
+					float handleLength = BetterPikesHelper.GetWieldedWeapon(agent).Item.WeaponDesign.UsedPieces[2].ScaledLength, handleOffset = BetterPikesHelper.GetWieldedWeapon(agent).Item.WeaponDesign.UsedPieces[2].ScaledPieceOffset;
 					// Find the frame of the agent's main hand.
 					MatrixFrame mainHandFrame = agent.AgentVisuals.GetGlobalFrame().TransformToParent(agent.AgentVisuals.GetSkeleton().GetBoneEntitialFrameWithIndex(agent.Monster.MainHandItemBoneIndex));
 					MatrixFrame handleFrontFrame = new MatrixFrame(mainHandFrame.rotation, mainHandFrame.origin).Elevate((handleLength * 0.4f) + handleOffset);
@@ -134,10 +70,65 @@ namespace BetterPikes
 						collidedAgent.RegisterBlow(blow, attackCollisionDataForDebugPurpose);
 					}
 				}
+
+				if (agent.GetComponent<ScriptedMovementComponent>() == null)
+				{
+					agent.SetScriptedFlags(agent.GetScriptedFlags() & ~Agent.AIScriptedFrameFlags.DoNotRun);
+				}
 			}
-			catch (Exception ex)
+
+			foreach (Formation formation in Mission.Teams.SelectMany(team => team.FormationsIncludingSpecialAndEmpty.Where(f => BetterPikesHelper.IsPikeFormation(f))))
 			{
-				InformationManager.DisplayMessage(new InformationMessage(ex.ToString()));
+				float formationWidth = formation.Width;
+				bool hasEnemy = formation.HasAnyEnemyFormationsThatIsNotEmpty() && formation.CachedClosestEnemyFormation != null, isLoose = formation.IsLoose;
+				bool isEnemyNearby = formation.CachedClosestEnemyFormationDistanceSquared <= MathF.Pow(BetterPikesSettings.Instance.MaxDistanceToReadyPikes, 2);
+				bool isInCircleArrangement = formation.ArrangementOrder == ArrangementOrder.ArrangementOrderCircle, isInSquareArrangement = formation.ArrangementOrder == ArrangementOrder.ArrangementOrderSquare;
+				Vec2 formationPosition = formation.CachedAveragePosition, closestEnemyFormationPosition = hasEnemy ? formation.CachedClosestEnemyFormation.Formation.CachedAveragePosition : Vec2.Invalid;
+
+				foreach (Agent agent in formation.GetUnitsWithoutDetachedOnes().Where(a => a.IsHuman && a.IsActive()))
+				{
+					Vec2 agentPosition = agent.Position.AsVec2;
+
+					agent.SetMaximumSpeedLimit(agent.GetMaximumForwardUnlimitedSpeed(), false);
+
+					if (hasEnemy && !isLoose && (agentPosition.DistanceSquared(formation.GetCurrentGlobalPositionOfUnit(agent, true)) < 1 || agentPosition.DistanceSquared(closestEnemyFormationPosition) <= formation.CachedClosestEnemyFormationDistanceSquared) && agent.GetComponent<ScriptedMovementComponent>() == null)
+					{
+						// Make the pikemen walk.
+						agent.SetScriptedFlags(agent.GetScriptedFlags() | Agent.AIScriptedFrameFlags.DoNotRun);
+					}
+
+					if (MBRandom.RandomFloat < 0.2f)
+					{
+						ActionIndexCache currentAction = agent.GetCurrentAction(1);
+
+						if (((isEnemyNearby && !isLoose) || isInCircleArrangement || isInSquareArrangement) && BetterPikesHelper.IsWieldingPike(agent) && agent.IsAIControlled && !agent.IsDoingPassiveAttack && agentPosition.DistanceSquared(formationPosition) < MathF.Pow((formationWidth / 2) + 1, 2))
+						{
+							if (currentAction != _readyThrustActionIndex && currentAction != _guardUpActionIndex)
+							{
+								agent.GetFormationFileAndRankInfo(out _, out int rankIndex);
+
+								// Make the pikemen ready their pikes in different positions.
+								if (rankIndex < 5)
+								{
+									// Make the first five ranks ready their pikes for a thrust.
+									agent.SetActionChannel(1, _readyThrustActionIndex, startProgress: MBRandom.RandomFloat);
+								}
+								else
+								{
+									// Make the sixth rank onwards ready their pikes at an angle.
+									agent.SetActionChannel(1, _guardUpActionIndex, startProgress: MBRandom.RandomFloat);
+								}
+							}
+						}
+						else
+						{
+							if (currentAction == _readyThrustActionIndex || currentAction == _guardUpActionIndex)
+							{
+								agent.SetActionChannel(1, ActionIndexCache.act_none, ignorePriority: true, blendInPeriod: 0.5f);
+							}
+						}
+					}
+				}
 			}
 		}
 	}

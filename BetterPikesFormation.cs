@@ -16,7 +16,7 @@ namespace BetterPikes
 			{
 				if (__instance.CachedClosestEnemyFormation != null)
 				{
-					if (__instance.CachedClosestEnemyFormation.IsCavalryFormation)
+					if (__instance.CachedClosestEnemyFormation.IsCavalryFormation && __instance.OrderPositionIsValid)
 					{
 						if (!_holdPositions.TryGetValue(__instance, out WorldPosition holdPosition))
 						{
@@ -35,10 +35,6 @@ namespace BetterPikes
 						// Else, make the pikemen advance.
 						input = MovementOrder.MovementOrderAdvance;
 					}
-				}
-				else
-				{
-					input = MovementOrder.MovementOrderStop;
 				}
 			}
 		}
@@ -60,7 +56,8 @@ namespace BetterPikes
 		{
 			if (BetterPikesHelper.IsPikeFormation(__instance) && __instance.IsAIControlled)
 			{
-				order = FormOrder.FormOrderDeep;
+				// If the closest enemy formation is cavalry, make the pikemen form a wide formation. Else, make the pikemen form a deep formation.
+				order = __instance.CachedClosestEnemyFormation != null && __instance.CachedClosestEnemyFormation.IsCavalryFormation ? FormOrder.FormOrderWide : FormOrder.FormOrderDeep;
 			}
 		}
 	}

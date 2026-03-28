@@ -1,5 +1,4 @@
-﻿using System;
-using TaleWorlds.Library;
+﻿using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
 
 namespace BetterPikes
@@ -10,26 +9,19 @@ namespace BetterPikes
 
 		public override void OnAIInputSet(ref Agent.EventControlFlag eventFlag, ref Agent.MovementControlFlag movementFlag, ref Vec2 inputVector)
 		{
-			try
+			if (BetterPikesHelper.IsWieldingPike(Agent))
 			{
-				if (BetterPikesHelper.IsPike(Agent.WieldedWeapon))
+				if (!BetterPikesSettings.Instance.CanPikemenBlock)
 				{
-					if (!BetterPikesSettings.Instance.CanPikemenBlock)
-					{
-						// Disable blocking for pikemen.
-						movementFlag &= ~Agent.MovementControlFlag.DefendLeft & ~Agent.MovementControlFlag.DefendRight & ~Agent.MovementControlFlag.DefendUp & ~Agent.MovementControlFlag.DefendDown;
-					}
-
-					if (!BetterPikesSettings.Instance.CanPikemenAttackUp)
-					{
-						// Disable overhead attacks for pikemen.
-						movementFlag &= ~Agent.MovementControlFlag.AttackUp;
-					}
+					// Disable blocking for pikemen.
+					movementFlag &= ~Agent.MovementControlFlag.DefendLeft & ~Agent.MovementControlFlag.DefendRight & ~Agent.MovementControlFlag.DefendUp & ~Agent.MovementControlFlag.DefendDown;
 				}
-			}
-			catch (Exception ex)
-			{
-				InformationManager.DisplayMessage(new InformationMessage(ex.ToString()));
+
+				if (!BetterPikesSettings.Instance.CanPikemenAttackUp)
+				{
+					// Disable overhead attacks for pikemen.
+					movementFlag &= ~Agent.MovementControlFlag.AttackUp;
+				}
 			}
 		}
 	}

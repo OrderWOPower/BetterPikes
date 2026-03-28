@@ -14,22 +14,30 @@ namespace BetterPikes
 			if (BetterPikesHelper.IsPikeFormation(formation))
 			{
 				float formationWidth = formation.Width;
+				bool isEnemyNearby = formation.CachedClosestEnemyFormationDistanceSquared <= 2500;
 				Vec2 formationPosition = formation.CachedAveragePosition;
 
-				if (formation.ArrangementOrder == ArrangementOrder.ArrangementOrderCircle)
+				formation.SetArrangementOrder(ArrangementOrder.ArrangementOrderShieldWall);
+
+				if (formation.ArrangementOrder != ArrangementOrder.ArrangementOrderCircle)
+				{
+					formation.ApplyActionOnEachUnit(delegate (Agent agent)
+					{
+						agent.ClearTargetFrame();
+					});
+				}
+				else
 				{
 					// If the pikemen are in circle formation, make the circle as tight as possible.
 					formation.SetPositioning(formation.CachedMedianPosition, formation.Direction, 0);
 					formation.ApplyActionOnEachUnit(delegate (Agent agent)
 					{
-						if (agent.Position.AsVec2.Distance(formationPosition) >= (formationWidth / 2) + 1 && agent.CanMoveDirectlyToPosition(formationPosition))
+						Vec2 currentGlobalPositionOfUnit = formation.GetCurrentGlobalPositionOfUnit(agent, true);
+
+						if (isEnemyNearby && agent.Position.AsVec2.DistanceSquared(formationPosition) >= MathF.Pow(formationWidth / 2, 2) && agent.CanMoveDirectlyToPosition(currentGlobalPositionOfUnit))
 						{
 							// Ensure that the pikemen maintain their formation.
-							agent.SetTargetPosition(formationPosition);
-						}
-						else
-						{
-							agent.ClearTargetFrame();
+							agent.SetTargetPosition(currentGlobalPositionOfUnit);
 						}
 					});
 				}

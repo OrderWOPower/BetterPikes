@@ -1,5 +1,4 @@
-﻿using System;
-using HarmonyLib;
+﻿using HarmonyLib;
 using TaleWorlds.MountAndBlade;
 
 namespace BetterPikes
@@ -11,15 +10,12 @@ namespace BetterPikes
 		[HarmonyPatch("DecideMountRearedByBlow")]
 		public static void Postfix1(ref bool __result, Agent attackerAgent)
 		{
-			if (attackerAgent.IsHuman && BetterPikesHelper.IsPike(attackerAgent.WieldedWeapon))
+			if (attackerAgent.IsHuman && BetterPikesHelper.IsWieldingPike(attackerAgent))
 			{
 				// Make pikes always rear mounts.
 				__result = true;
 			}
 		}
-
-		[HarmonyPatch("DecideMountRearedByBlow")]
-		public static Exception Finalizer() => null;
 
 		[HarmonyPostfix]
 		[HarmonyPatch("ComputeBlowMagnitude")]
