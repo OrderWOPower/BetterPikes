@@ -79,9 +79,9 @@ namespace BetterPikes
 
 			foreach (Formation formation in Mission.Teams.SelectMany(team => team.FormationsIncludingSpecialAndEmpty.Where(f => BetterPikesHelper.IsPikeFormation(f))))
 			{
-				float formationWidth = formation.Width;
+				float closestEnemyFormationDistanceSquared = formation.CachedClosestEnemyFormationDistanceSquared, formationWidth = formation.Width;
 				bool hasEnemy = formation.HasAnyEnemyFormationsThatIsNotEmpty() && formation.CachedClosestEnemyFormation != null, isLoose = formation.IsLoose;
-				bool isEnemyNearby = formation.CachedClosestEnemyFormationDistanceSquared <= MathF.Pow(BetterPikesSettings.Instance.MaxDistanceToReadyPikes, 2);
+				bool isEnemyNearby = closestEnemyFormationDistanceSquared <= MathF.Pow(BetterPikesSettings.Instance.MaxDistanceToReadyPikes, 2);
 				bool isInCircleArrangement = formation.ArrangementOrder == ArrangementOrder.ArrangementOrderCircle, isInSquareArrangement = formation.ArrangementOrder == ArrangementOrder.ArrangementOrderSquare;
 				Vec2 formationPosition = formation.CachedAveragePosition, closestEnemyFormationPosition = hasEnemy ? formation.CachedClosestEnemyFormation.Formation.CachedAveragePosition : Vec2.Invalid;
 
@@ -91,7 +91,7 @@ namespace BetterPikes
 
 					agent.SetMaximumSpeedLimit(agent.GetMaximumForwardUnlimitedSpeed(), false);
 
-					if (hasEnemy && !isLoose && (agentPosition.DistanceSquared(formation.GetCurrentGlobalPositionOfUnit(agent, true)) < 1 || agentPosition.DistanceSquared(closestEnemyFormationPosition) <= formation.CachedClosestEnemyFormationDistanceSquared) && agent.GetComponent<ScriptedMovementComponent>() == null)
+					if (hasEnemy && !isLoose && (agentPosition.DistanceSquared(formation.GetCurrentGlobalPositionOfUnit(agent, true)) < 1 || agentPosition.DistanceSquared(closestEnemyFormationPosition) <= closestEnemyFormationDistanceSquared) && agent.GetComponent<ScriptedMovementComponent>() == null)
 					{
 						// Make the pikemen walk.
 						agent.SetScriptedFlags(agent.GetScriptedFlags() | Agent.AIScriptedFrameFlags.DoNotRun);
