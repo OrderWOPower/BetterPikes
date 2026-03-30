@@ -2,7 +2,6 @@
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
-using TaleWorlds.MountAndBlade.AI.AgentComponents;
 
 namespace BetterPikes
 {
@@ -71,7 +70,7 @@ namespace BetterPikes
 					}
 				}
 
-				if (agent.GetComponent<ScriptedMovementComponent>() == null)
+				if (Mission.Mode == MissionMode.Battle)
 				{
 					agent.SetScriptedFlags(agent.GetScriptedFlags() & ~Agent.AIScriptedFrameFlags.DoNotRun);
 				}
@@ -91,7 +90,7 @@ namespace BetterPikes
 
 					agent.SetMaximumSpeedLimit(agent.GetMaximumForwardUnlimitedSpeed(), false);
 
-					if (hasEnemy && !isLoose && (agentPosition.DistanceSquared(formation.GetCurrentGlobalPositionOfUnit(agent, true)) < 1 || agentPosition.DistanceSquared(closestEnemyFormationPosition) <= closestEnemyFormationDistanceSquared) && agent.GetComponent<ScriptedMovementComponent>() == null)
+					if (Mission.Mode == MissionMode.Battle && hasEnemy && !isLoose && (agentPosition.DistanceSquared(formation.GetCurrentGlobalPositionOfUnit(agent, true)) < 1 || agentPosition.DistanceSquared(closestEnemyFormationPosition) <= closestEnemyFormationDistanceSquared))
 					{
 						// Make the pikemen walk.
 						agent.SetScriptedFlags(agent.GetScriptedFlags() | Agent.AIScriptedFrameFlags.DoNotRun);
