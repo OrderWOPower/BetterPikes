@@ -12,29 +12,26 @@ namespace BetterPikes
 
 		public static void Prefix1(Formation __instance, ref MovementOrder input)
 		{
-			if (BetterPikesHelper.IsPikeFormation(__instance) && __instance.IsAIControlled)
+			if (BetterPikesHelper.IsPikeFormation(__instance) && __instance.IsAIControlled && __instance.CachedClosestEnemyFormation != null)
 			{
-				if (__instance.CachedClosestEnemyFormation != null)
+				if (__instance.CachedClosestEnemyFormation.IsCavalryFormation && __instance.OrderPositionIsValid)
 				{
-					if (__instance.CachedClosestEnemyFormation.IsCavalryFormation && __instance.OrderPositionIsValid)
+					if (!_holdPositions.TryGetValue(__instance, out WorldPosition holdPosition))
 					{
-						if (!_holdPositions.TryGetValue(__instance, out WorldPosition holdPosition))
-						{
-							_holdPositions.Add(__instance, __instance.CachedMedianPosition);
-						}
-						else
-						{
-							// If the closest enemy formation is cavalry, make the pikemen hold their position.
-							input = MovementOrder.MovementOrderMove(holdPosition);
-						}
+						_holdPositions.Add(__instance, __instance.CachedMedianPosition);
 					}
 					else
 					{
-						_holdPositions.Remove(__instance);
-
-						// Else, make the pikemen advance.
-						input = MovementOrder.MovementOrderAdvance;
+						// If the closest enemy formation is cavalry, make the pikemen hold their position.
+						input = MovementOrder.MovementOrderMove(holdPosition);
 					}
+				}
+				else
+				{
+					_holdPositions.Remove(__instance);
+
+					// Else, make the pikemen advance.
+					input = MovementOrder.MovementOrderAdvance;
 				}
 			}
 		}
