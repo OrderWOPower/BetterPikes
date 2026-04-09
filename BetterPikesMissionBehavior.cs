@@ -36,7 +36,7 @@ namespace BetterPikes
 
 		public override void OnMissionTick(float dt)
 		{
-			foreach (Agent agent in Mission.Agents.Where(a => a.IsHuman && a.IsActive()))
+			foreach (Agent agent in Mission.Agents.FindAll(a => a.IsHuman && a.IsActive() && !a.HasMount))
 			{
 				if (BetterPikesHelper.IsWieldingPike(agent) && (agent.GetCurrentAction(1).GetName().Contains("ready") || agent.GetCurrentAction(1).GetName().Contains("release")))
 				{
