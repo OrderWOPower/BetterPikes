@@ -39,6 +39,10 @@ namespace BetterPikes
 							// Ensure that the pikemen maintain their formation.
 							agent.SetTargetPosition(currentGlobalPositionOfUnit);
 						}
+						else
+						{
+							agent.ClearTargetFrame();
+						}
 					});
 				}
 			}
