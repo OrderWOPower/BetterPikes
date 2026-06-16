@@ -17,5 +17,7 @@
     <string id="BetterPikes11" text="Pikemen can block with their pikes (unrealistic). Disabled by default." />
     <string id="BetterPikes12" text="Pikemen Can Attack Overhead" />
     <string id="BetterPikes13" text="Pikemen can perform overhead attacks (unrealistic). Disabled by default." />
+    <string id="BetterPikes14" text="Pikes Have Collision" />
+    <string id="BetterPikes15" text="Pikes can obstruct enemies who try to get past the pike head. Enabled by default." />
   </strings>
 </base>

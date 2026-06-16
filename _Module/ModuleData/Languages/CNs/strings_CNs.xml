@@ -17,5 +17,7 @@
     <string id="BetterPikes11" text="长矛兵可以使用长矛格挡（不真实）。默认禁用。" />
     <string id="BetterPikes12" text="长矛兵可以从高处攻击" />
     <string id="BetterPikes13" text="长矛兵可以进行高空攻击（不真实）。默认禁用。" />
+    <string id="BetterPikes14" text="长矛具有碰撞" />
+    <string id="BetterPikes15" text="长矛可以阻挡试图越过矛头的敌人。默认启用。" />
   </strings>
 </base>
