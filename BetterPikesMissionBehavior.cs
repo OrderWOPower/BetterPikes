@@ -57,12 +57,12 @@ namespace BetterPikes
 						blow.BoneIndex = collidedAgent.Monster.HeadLookDirectionBoneIndex;
 						blow.GlobalPosition = collidedAgent.Position;
 						blow.GlobalPosition.z += collidedAgent.GetEyeGlobalHeight();
-						blow.BaseMagnitude = 200f;
+						blow.BaseMagnitude = 0;
 						blow.WeaponRecord.FillAsMeleeBlow(null, null, -1, -1);
 						blow.InflictedDamage = 0;
 						blow.SwingDirection = agent.LookDirection;
 						blow.Direction = blow.SwingDirection;
-						blow.DamageCalculated = false;
+						blow.DamageCalculated = true;
 						blow.BlowFlag |= BlowFlags.KnockBack;
 						attackCollisionDataForDebugPurpose = AttackCollisionData.GetAttackCollisionDataForDebugPurpose(false, false, false, true, false, false, false, false, false, false, false, false, CombatCollisionResult.StrikeAgent, -1, 0, 2, blow.BoneIndex, BoneBodyPartType.Chest, agent.Monster.MainHandItemBoneIndex, Agent.UsageDirection.AttackDown, -1, CombatHitResultFlags.NormalHit, 0.5f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, Vec3.Up, blow.Direction, blow.GlobalPosition, Vec3.Zero, Vec3.Zero, collidedAgent.Velocity, Vec3.Up);
 						// Knock back the collided agent.
