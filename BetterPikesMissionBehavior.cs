@@ -38,7 +38,7 @@ namespace BetterPikes
 		{
 			foreach (Agent agent in Mission.Agents.FindAll(a => a.IsHuman && a.IsActive() && !a.HasMount))
 			{
-				if (BetterPikesHelper.IsWieldingPike(agent) && (agent.GetCurrentAction(1).GetName().Contains("ready") || agent.GetCurrentAction(1).GetName().Contains("release")) && BetterPikesSettings.Instance.DoPikesHaveCollision)
+				if (BetterPikesHelper.IsWieldingPike(agent) && (agent.GetCurrentActionType(1) == Agent.ActionCodeType.ReadyMelee || agent.GetCurrentActionType(1) == Agent.ActionCodeType.ReleaseMelee) && BetterPikesSettings.Instance.DoPikesHaveCollision)
 				{
 					float handleLength = BetterPikesHelper.GetWieldedWeapon(agent).Item.WeaponDesign.UsedPieces[2].ScaledLength, handleOffset = BetterPikesHelper.GetWieldedWeapon(agent).Item.WeaponDesign.UsedPieces[2].ScaledPieceOffset;
 					// Find the frame of the agent's main hand.
