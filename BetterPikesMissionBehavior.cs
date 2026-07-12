@@ -85,15 +85,16 @@ namespace BetterPikes
 				float closestEnemyFormationDistanceSquared = formation.CachedClosestEnemyFormationDistanceSquared, formationWidth = formation.Width;
 				bool hasEnemy = formation.HasAnyEnemyFormationsThatIsNotEmpty(), isLoose = formation.IsLoose, isEnemyNearby = closestEnemyFormationDistanceSquared <= MathF.Pow(BetterPikesSettings.Instance.MaxDistanceToReadyPikes, 2);
 				bool isInCircleArrangement = formation.ArrangementOrder == ArrangementOrder.ArrangementOrderCircle, isInSquareArrangement = formation.ArrangementOrder == ArrangementOrder.ArrangementOrderSquare;
-				Vec2 formationPosition = formation.CachedAveragePosition, closestEnemyFormationPosition = formation.CachedClosestEnemyFormation != null ? formation.CachedClosestEnemyFormation.Formation.CachedAveragePosition : Vec2.Invalid;
+				Vec2 closestEnemyFormationPosition = formation.CachedClosestEnemyFormation != null ? formation.CachedClosestEnemyFormation.Formation.CachedAveragePosition : Vec2.Invalid, formationPosition = formation.CachedAveragePosition, formationDirection = formation.CurrentDirection;
+				Formation.FormationIntegrityDataGroup cachedFormationIntegrityData = formation.CachedFormationIntegrityData;
 
 				foreach (Agent agent in formation.GetUnitsWithoutDetachedOnes().Where(a => a.IsHuman && a.IsActive()))
 				{
-					Vec2 agentPosition = agent.Position.AsVec2;
+					Vec2 agentPosition = agent.Position.AsVec2, currentGlobalPositionOfUnit = formation.GetCurrentGlobalPositionOfUnit(agent, true);
 
 					agent.SetMaximumSpeedLimit(agent.GetMaximumForwardUnlimitedSpeed(), false);
 
-					if (Mission.Mode == MissionMode.Battle && hasEnemy && !isLoose && (agentPosition.DistanceSquared(formation.GetCurrentGlobalPositionOfUnit(agent, true)) < 1 || agentPosition.DistanceSquared(closestEnemyFormationPosition) <= closestEnemyFormationDistanceSquared))
+					if (Mission.Mode == MissionMode.Battle && hasEnemy && !isLoose && (agentPosition.DistanceSquared(currentGlobalPositionOfUnit) < 1 || agentPosition.DistanceSquared(closestEnemyFormationPosition) <= closestEnemyFormationDistanceSquared))
 					{
 						// Make the pikemen walk.
 						agent.SetScriptedFlags(agent.GetScriptedFlags() | Agent.AIScriptedFrameFlags.DoNotRun);
@@ -129,6 +130,11 @@ namespace BetterPikes
 								agent.SetActionChannel(1, ActionIndexCache.act_none, ignorePriority: true, blendInPeriod: 0.5f);
 							}
 						}
+					}
+
+					if (BetterPikesHelper.IsWieldingPike(agent))
+					{
+						agent.SetFormationIntegrityData(currentGlobalPositionOfUnit, formationDirection, cachedFormationIntegrityData.AverageVelocityExcludeFarAgents, cachedFormationIntegrityData.AverageMaxUnlimitedSpeedExcludeFarAgents, cachedFormationIntegrityData.DeviationOfPositionsExcludeFarAgents, true);
 					}
 				}
 			}
