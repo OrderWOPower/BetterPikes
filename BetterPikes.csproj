@@ -66,6 +66,7 @@
     <Compile Include="BetterPikesBehaviorAdvance.cs" />
     <Compile Include="BetterPikesBehaviorCharge.cs" />
     <Compile Include="BetterPikesBehaviorComponent.cs" />
+    <Compile Include="BetterPikesCinematicCombat.cs" />
     <Compile Include="BetterPikesCombatActionEngine.cs" />
     <Compile Include="BetterPikesCombatMechanicsHelper.cs" />
     <Compile Include="BetterPikesFormation.cs" />

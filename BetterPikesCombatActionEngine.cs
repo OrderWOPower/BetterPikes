@@ -14,7 +14,7 @@ namespace BetterPikes
 
 		private static void Postfix(ref bool __result, Agent agent)
 		{
-			if (agent != null && BetterPikesHelper.IsWieldingPike(agent))
+			if (agent != null && agent.IsHuman && BetterPikesHelper.IsWieldingPike(agent))
 			{
 				// Disable kicking and bashing for pikemen.
 				__result = false;
