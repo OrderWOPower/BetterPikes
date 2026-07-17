@@ -34,7 +34,7 @@ namespace BetterPikes
 					{
 						Vec2 currentGlobalPositionOfUnit = formation.GetCurrentGlobalPositionOfUnit(agent, true);
 
-						if (isEnemyNearby && agent.Position.AsVec2.DistanceSquared(formationPosition) >= MathF.Pow(formationWidth / 2, 2) && agent.CanMoveDirectlyToPosition(currentGlobalPositionOfUnit))
+						if (isEnemyNearby && agent.Position.AsVec2.DistanceSquared(formationPosition) >= MathF.Pow(formationWidth / 2, 2) && agent.CanMoveDirectlyToPosition(currentGlobalPositionOfUnit) && agent.IsAIControlled)
 						{
 							// Ensure that the pikemen maintain their formation.
 							agent.SetTargetPosition(currentGlobalPositionOfUnit);
