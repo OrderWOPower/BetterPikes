@@ -132,7 +132,7 @@ namespace BetterPikes
 						}
 					}
 
-					if (BetterPikesHelper.IsWieldingPike(agent))
+					if ((!isLoose || isInCircleArrangement || isInSquareArrangement) && BetterPikesHelper.IsWieldingPike(agent))
 					{
 						// Ensure that the pikemen maintain their formation.
 						agent.SetFormationIntegrityData(currentGlobalPositionOfUnit, formationDirection, cachedFormationIntegrityData.AverageVelocityExcludeFarAgents, cachedFormationIntegrityData.AverageMaxUnlimitedSpeedExcludeFarAgents, cachedFormationIntegrityData.DeviationOfPositionsExcludeFarAgents, true);
