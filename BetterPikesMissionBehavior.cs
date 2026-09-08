@@ -139,16 +139,16 @@ namespace BetterPikes
 						// Ensure that the pikemen maintain their formation.
 						agent.SetFormationIntegrityData(currentGlobalPositionOfUnit, formationDirection, cachedFormationIntegrityData.AverageVelocityExcludeFarAgents, cachedFormationIntegrityData.AverageMaxUnlimitedSpeedExcludeFarAgents, cachedFormationIntegrityData.DeviationOfPositionsExcludeFarAgents, true);
 
-						if (agent.GetCurrentActionType(1) == Agent.ActionCodeType.ReadyMelee || agent.GetCurrentActionType(1) == Agent.ActionCodeType.ReleaseMelee && agentPosition.DistanceSquared(currentGlobalPositionOfUnit) < 1 && !settings.CanPikemenTurnSideways)
+						if (agentPosition.DistanceSquared(currentGlobalPositionOfUnit) < 1 && !settings.CanPikemenTurnSideways)
 						{
-							float agentAngle = agent.MovementDirectionAsAngle.ToDegrees(), angleDifference = formationDirection.RotationInRadians.ToDegrees() - agentAngle;
+							float angularDifference = formationDirection.RotationInRadians.ToDegrees() - agent.MovementDirectionAsAngle.ToDegrees();
 
-							angleDifference = ((angleDifference + 180) % 360) - 180;
+							angularDifference = ((((angularDifference + 180) % 360) + 360) % 360) - 180;
 
-							if (angleDifference > 1 || angleDifference < -1)
+							if (angularDifference > 1 || angularDifference < -1)
 							{
 								// Prevent the pikemen from turning sideways when in pike formation.
-								agent.SetMovementDirection(Vec2.FromRotation((agentAngle + (angleDifference / 10)).ToRadians()));
+								agent.SetMovementDirection(Vec2.FromRotation(agent.MovementDirectionAsAngle + (angularDifference / 10).ToRadians()));
 							}
 						}
 					}
