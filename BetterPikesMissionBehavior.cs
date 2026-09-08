@@ -35,13 +35,15 @@ namespace BetterPikes
 
 		public override void OnMissionTick(float dt)
 		{
+			BetterPikesSettings settings = BetterPikesSettings.Instance;
+
 			foreach (Agent agent in Mission.Agents.FindAll(a => a.IsHuman && a.IsActive() && !a.HasMount))
 			{
 				if (BetterPikesHelper.IsWieldingPike(agent))
 				{
 					agent.SetHasOnAiInputSetCallback(true);
 
-					if ((agent.GetCurrentActionType(1) == Agent.ActionCodeType.ReadyMelee || agent.GetCurrentActionType(1) == Agent.ActionCodeType.ReleaseMelee) && BetterPikesSettings.Instance.DoPikesHaveCollision)
+					if ((agent.GetCurrentActionType(1) == Agent.ActionCodeType.ReadyMelee || agent.GetCurrentActionType(1) == Agent.ActionCodeType.ReleaseMelee) && settings.DoPikesHaveCollision)
 					{
 						float handleLength = BetterPikesHelper.GetWieldedWeapon(agent).Item.WeaponDesign.UsedPieces[2].ScaledLength, handleOffset = BetterPikesHelper.GetWieldedWeapon(agent).Item.WeaponDesign.UsedPieces[2].ScaledPieceOffset;
 						// Find the frame of the agent's main hand.
@@ -83,7 +85,7 @@ namespace BetterPikes
 			foreach (Formation formation in Mission.Teams.SelectMany(team => team.FormationsIncludingSpecialAndEmpty.Where(f => BetterPikesHelper.IsPikeFormation(f))))
 			{
 				float closestEnemyFormationDistanceSquared = formation.CachedClosestEnemyFormationDistanceSquared, formationWidth = formation.Width;
-				bool hasEnemy = formation.HasAnyEnemyFormationsThatIsNotEmpty(), isLoose = formation.IsLoose, isEnemyNearby = closestEnemyFormationDistanceSquared <= MathF.Pow(BetterPikesSettings.Instance.MaxDistanceToReadyPikes, 2);
+				bool hasEnemy = formation.HasAnyEnemyFormationsThatIsNotEmpty(), isLoose = formation.IsLoose, isEnemyNearby = closestEnemyFormationDistanceSquared <= MathF.Pow(settings.MaxDistanceToReadyPikes, 2);
 				bool isInCircleArrangement = formation.ArrangementOrder == ArrangementOrder.ArrangementOrderCircle, isInSquareArrangement = formation.ArrangementOrder == ArrangementOrder.ArrangementOrderSquare;
 				Vec2 closestEnemyFormationPosition = formation.CachedClosestEnemyFormation != null ? formation.CachedClosestEnemyFormation.Formation.CachedAveragePosition : Vec2.Invalid, formationPosition = formation.CachedAveragePosition, formationDirection = formation.CurrentDirection;
 				Formation.FormationIntegrityDataGroup cachedFormationIntegrityData = formation.CachedFormationIntegrityData;
@@ -132,10 +134,23 @@ namespace BetterPikes
 						}
 					}
 
-					if ((!isLoose || isInCircleArrangement || isInSquareArrangement) && BetterPikesHelper.IsWieldingPike(agent))
+					if (isEnemyNearby && !isLoose && BetterPikesHelper.IsWieldingPike(agent) && agent.IsAIControlled)
 					{
 						// Ensure that the pikemen maintain their formation.
 						agent.SetFormationIntegrityData(currentGlobalPositionOfUnit, formationDirection, cachedFormationIntegrityData.AverageVelocityExcludeFarAgents, cachedFormationIntegrityData.AverageMaxUnlimitedSpeedExcludeFarAgents, cachedFormationIntegrityData.DeviationOfPositionsExcludeFarAgents, true);
+
+						if (agent.GetCurrentActionType(1) == Agent.ActionCodeType.ReadyMelee || agent.GetCurrentActionType(1) == Agent.ActionCodeType.ReleaseMelee && agentPosition.DistanceSquared(currentGlobalPositionOfUnit) < 1 && !settings.CanPikemenTurnSideways)
+						{
+							float agentAngle = agent.MovementDirectionAsAngle.ToDegrees(), angleDifference = formationDirection.RotationInRadians.ToDegrees() - agentAngle;
+
+							angleDifference = ((angleDifference + 180) % 360) - 180;
+
+							if (angleDifference > 1 || angleDifference < -1)
+							{
+								// Prevent the pikemen from turning sideways when in pike formation.
+								agent.SetMovementDirection(Vec2.FromRotation((agentAngle + (angleDifference / 10)).ToRadians()));
+							}
+						}
 					}
 				}
 			}

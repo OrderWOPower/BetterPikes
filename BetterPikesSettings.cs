@@ -34,7 +34,11 @@ namespace BetterPikes
 		[SettingPropertyGroup("{=BetterPikes03}Combat", GroupOrder = 2)]
 		public bool CanPikemenAttackUp { get; set; } = false;
 
-		[SettingPropertyBool("{=BetterPikes14}Pikes Have Collision", Order = 2, RequireRestart = false, HintText = "{=BetterPikes15}Pikes can obstruct enemies who try to get past the pike head. Enabled by default.")]
+		[SettingPropertyBool("{=BetterPikes14}Pikemen Can Turn Sideways", Order = 2, RequireRestart = false, HintText = "{=BetterPikes15}Pikemen can turn sideways when in pike formation. Disabled by default.")]
+		[SettingPropertyGroup("{=BetterPikes03}Combat", GroupOrder = 2)]
+		public bool CanPikemenTurnSideways { get; set; } = false;
+
+		[SettingPropertyBool("{=BetterPikes16}Pikes Have Collision", Order = 3, RequireRestart = false, HintText = "{=BetterPikes17}Pikes can obstruct enemies who try to get past the pike head. Enabled by default.")]
 		[SettingPropertyGroup("{=BetterPikes03}Combat", GroupOrder = 2)]
 		public bool DoPikesHaveCollision { get; set; } = true;
 	}
