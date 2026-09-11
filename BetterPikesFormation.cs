@@ -12,7 +12,7 @@ namespace BetterPikes
 
 		public static void Prefix1(Formation __instance, ref MovementOrder input)
 		{
-			if (BetterPikesHelper.IsPikeFormation(__instance) && __instance.IsAIControlled && __instance.QuerySystem.ClosestSignificantlyLargeEnemyFormation != null)
+			if (BetterPikesHelper.IsPikeFormation(__instance) && __instance.IsAIControlled && __instance.Team != null && __instance.QuerySystem.ClosestSignificantlyLargeEnemyFormation != null)
 			{
 				if (__instance.QuerySystem.ClosestSignificantlyLargeEnemyFormation.IsCavalryFormation && __instance.OrderPositionIsValid)
 				{
@@ -43,7 +43,7 @@ namespace BetterPikes
 			if (BetterPikesHelper.IsPikeFormation(__instance) && __instance.IsAIControlled)
 			{
 				// If the closest enemy formation is cavalry, make the pikemen form a circle. Else, make the pikemen form a shield wall.
-				order = __instance.QuerySystem.ClosestSignificantlyLargeEnemyFormation != null && __instance.QuerySystem.ClosestSignificantlyLargeEnemyFormation.IsCavalryFormation ? ArrangementOrder.ArrangementOrderCircle : ArrangementOrder.ArrangementOrderShieldWall;
+				order = __instance.Team != null && __instance.QuerySystem.ClosestSignificantlyLargeEnemyFormation != null && __instance.QuerySystem.ClosestSignificantlyLargeEnemyFormation.IsCavalryFormation ? ArrangementOrder.ArrangementOrderCircle : ArrangementOrder.ArrangementOrderShieldWall;
 			}
 		}
 
@@ -54,7 +54,7 @@ namespace BetterPikes
 			if (BetterPikesHelper.IsPikeFormation(__instance) && __instance.IsAIControlled)
 			{
 				// If the closest enemy formation is cavalry, make the pikemen form a wide formation. Else, make the pikemen form a deep formation.
-				order = __instance.QuerySystem.ClosestSignificantlyLargeEnemyFormation != null && __instance.QuerySystem.ClosestSignificantlyLargeEnemyFormation.IsCavalryFormation ? FormOrder.FormOrderWide : FormOrder.FormOrderDeep;
+				order = __instance.Team != null && __instance.QuerySystem.ClosestSignificantlyLargeEnemyFormation != null && __instance.QuerySystem.ClosestSignificantlyLargeEnemyFormation.IsCavalryFormation ? FormOrder.FormOrderWide : FormOrder.FormOrderDeep;
 			}
 		}
 	}
