@@ -14,7 +14,7 @@ namespace BetterPikes
 			if (BetterPikesHelper.IsPikeFormation(formation))
 			{
 				float deviationOfPositions = formation.CachedFormationIntegrityData.DeviationOfPositionsExcludeFarAgents, formationWidth = formation.Width;
-				bool isEnemyNearby = formation.CachedClosestEnemyFormationDistanceSquared <= 2500;
+				bool isEnemyNearby = formation.CachedClosestEnemyFormationDistanceSquared <= MathF.Pow(BetterPikesSettings.Instance.MaxDistanceToReadyPikes, 2);
 				Vec2 orderPosition = formation.OrderPosition, formationPosition = formation.CachedAveragePosition;
 
 				formation.SetArrangementOrder(ArrangementOrder.ArrangementOrderShieldWall);
