@@ -71,6 +71,7 @@
     <Compile Include="BetterPikesCombatMechanicsHelper.cs" />
     <Compile Include="BetterPikesFormation.cs" />
     <Compile Include="BetterPikesHelper.cs" />
+    <Compile Include="BetterPikesAgentAi.cs" />
     <Compile Include="BetterPikesMissionBehavior.cs" />
     <Compile Include="BetterPikesSettings.cs" />
     <Compile Include="BetterPikesSubModule.cs" />

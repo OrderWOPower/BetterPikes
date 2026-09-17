@@ -9,7 +9,7 @@ namespace BetterPikes
 	public class BetterPikesSubModule : MBSubModuleBase
 	{
 		private Harmony _harmony;
-		private Type _typeofCinematicCombatMissionLogic;
+		private Type _typeofAgentAi, _typeofCinematicCombatMissionLogic;
 
 		protected override void OnSubModuleLoad()
 		{
@@ -19,7 +19,14 @@ namespace BetterPikes
 
 		protected override void OnGameStart(Game game, IGameStarter gameStarterObject)
 		{
+			_typeofAgentAi = AccessTools.TypeByName("RBMAI.AgentAi");
 			_typeofCinematicCombatMissionLogic = AccessTools.TypeByName("CinematicCombatMissionLogic");
+
+			// Check whether RBM is loaded.
+			if (_typeofAgentAi != null)
+			{
+				_harmony.Patch(AccessTools.Method(AccessTools.Inner(_typeofAgentAi, "ChargeDamageCallbackPatch"), "PanicFromCharge"), prefix: new HarmonyMethod(AccessTools.Method(typeof(BetterPikesAgentAi), "Prefix")));
+			}
 
 			// Check whether Artem's Cinematic Combat is loaded.
 			if (_typeofCinematicCombatMissionLogic != null)
@@ -41,6 +48,11 @@ namespace BetterPikes
 
 		public override void OnGameEnd(Game game)
 		{
+			if (_typeofAgentAi != null)
+			{
+				_harmony.Unpatch(AccessTools.Method(AccessTools.Inner(_typeofAgentAi, "ChargeDamageCallbackPatch"), "PanicFromCharge"), AccessTools.Method(typeof(BetterPikesAgentAi), "Prefix"));
+			}
+
 			if (_typeofCinematicCombatMissionLogic != null)
 			{
 				_harmony.Unpatch(AccessTools.Method(_typeofCinematicCombatMissionLogic, "OnAgentHit"), AccessTools.Method(typeof(BetterPikesCinematicCombat), "Prefix1"));

@@ -12,9 +12,9 @@ namespace BetterPikes
 
 		public static void Prefix1(Formation __instance, ref MovementOrder input)
 		{
-			if (BetterPikesHelper.IsPikeFormation(__instance) && __instance.IsAIControlled && __instance.Team != null && __instance.QuerySystem.ClosestSignificantlyLargeEnemyFormation != null)
+			if (BetterPikesHelper.IsPikeFormation(__instance) && __instance.IsAIControlled && __instance.CachedClosestEnemyFormation != null)
 			{
-				if (__instance.QuerySystem.ClosestSignificantlyLargeEnemyFormation.IsCavalryFormation && __instance.OrderPositionIsValid)
+				if (__instance.CachedClosestEnemyFormation.Formation.GetCountOfUnitsWithCondition(agent => agent.HasMount) >= __instance.CountOfUnits * 0.25f && __instance.OrderPositionIsValid)
 				{
 					if (!_holdPositions.TryGetValue(__instance, out WorldPosition holdPosition))
 					{
@@ -22,7 +22,7 @@ namespace BetterPikes
 					}
 					else
 					{
-						// If the closest enemy formation is cavalry, make the pikemen hold their position.
+						// If the number of cavalry in the closest enemy formation is greater than or equal to 25% the number of pikemen, make the pikemen hold their position.
 						input = MovementOrder.MovementOrderMove(holdPosition);
 					}
 				}
@@ -40,10 +40,10 @@ namespace BetterPikes
 		[HarmonyPatch("SetArrangementOrder")]
 		public static void Prefix2(Formation __instance, ref ArrangementOrder order)
 		{
-			if (BetterPikesHelper.IsPikeFormation(__instance) && __instance.IsAIControlled)
+			if (BetterPikesHelper.IsPikeFormation(__instance) && __instance.IsAIControlled && __instance.CachedClosestEnemyFormation != null)
 			{
-				// If the closest enemy formation is cavalry, make the pikemen form a circle. Else, make the pikemen form a shield wall.
-				order = __instance.Team != null && __instance.QuerySystem.ClosestSignificantlyLargeEnemyFormation != null && __instance.QuerySystem.ClosestSignificantlyLargeEnemyFormation.IsCavalryFormation ? ArrangementOrder.ArrangementOrderCircle : ArrangementOrder.ArrangementOrderShieldWall;
+				// If the number of cavalry in the closest enemy formation is greater than or equal to 25% the number of pikemen, make the pikemen form a circle. Else, make the pikemen form a shield wall.
+				order = __instance.CachedClosestEnemyFormation.Formation.GetCountOfUnitsWithCondition(agent => agent.HasMount) >= __instance.CountOfUnits * 0.25f ? ArrangementOrder.ArrangementOrderCircle : ArrangementOrder.ArrangementOrderShieldWall;
 			}
 		}
 
@@ -51,10 +51,10 @@ namespace BetterPikes
 		[HarmonyPatch("SetFormOrder")]
 		public static void Prefix3(Formation __instance, ref FormOrder order)
 		{
-			if (BetterPikesHelper.IsPikeFormation(__instance) && __instance.IsAIControlled)
+			if (BetterPikesHelper.IsPikeFormation(__instance) && __instance.IsAIControlled && __instance.CachedClosestEnemyFormation != null)
 			{
-				// If the closest enemy formation is cavalry, make the pikemen form a wide formation. Else, make the pikemen form a deep formation.
-				order = __instance.Team != null && __instance.QuerySystem.ClosestSignificantlyLargeEnemyFormation != null && __instance.QuerySystem.ClosestSignificantlyLargeEnemyFormation.IsCavalryFormation ? FormOrder.FormOrderWide : FormOrder.FormOrderDeep;
+				// If the number of cavalry in the closest enemy formation is greater than or equal to 25% the number of pikemen, make the pikemen form a wide formation. Else, make the pikemen form a deep formation.
+				order = __instance.CachedClosestEnemyFormation.Formation.GetCountOfUnitsWithCondition(agent => agent.HasMount) >= __instance.CountOfUnits * 0.25f ? FormOrder.FormOrderWide : FormOrder.FormOrderDeep;
 			}
 		}
 	}
