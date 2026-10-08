@@ -1,29 +1,57 @@
-﻿using TaleWorlds.MountAndBlade;
+﻿using HarmonyLib;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using TaleWorlds.MountAndBlade;
 
 namespace BetterPikes
 {
 	public class BetterPikesCinematicCombat
 	{
-		public static bool Prefix1(MissionWeapon affectorWeapon)
+		[HarmonyPatch]
+		public class BetterPikesCinematicCombatNpc
 		{
-			if (BetterPikesHelper.IsPike(affectorWeapon))
-			{
-				// Disable cinematic combat for pikemen.
-				return false;
-			}
+			private static MethodBase TargetMethod() => AccessTools.Method(AccessTools.TypeByName("CinematicCombatMissionLogic"), "OnAgentHit");
 
-			return true;
+			// Check whether Artem's Cinematic Combat is loaded.
+			private static bool Prepare() => TargetMethod() != null;
+
+			public static bool Prefix(MissionWeapon affectorWeapon)
+			{
+				if (!BetterPikesSettings.Instance.CanPikemenPerformCinematicCombat && BetterPikesHelper.IsPike(affectorWeapon))
+				{
+					// Disable cinematic combat for pikemen.
+					return false;
+				}
+
+				return true;
+			}
 		}
 
-		public static bool Prefix2()
+		[HarmonyPatch]
+		public class BetterPikesCinematicCombatPc
 		{
-			if (Agent.Main != null && BetterPikesHelper.IsWieldingPike(Agent.Main))
+			private static IEnumerable<MethodBase> TargetMethods()
 			{
-				// Disable cinematic combat for pikemen.
-				return false;
+				yield return AccessTools.Constructor(AccessTools.TypeByName("CCKillmoveDataPlayer"), new Type[] { typeof(object), typeof(object) });
+				yield return AccessTools.Constructor(AccessTools.TypeByName("CCMatchedCombatDataPlayer"), new Type[] { typeof(object), typeof(object) });
+				yield return AccessTools.Method(AccessTools.TypeByName("CinematicCombatMasterstrikeLogic"), "CinematicCombatMasterStrikePlayerLogic");
 			}
 
-			return true;
+			// Check whether Artem's Cinematic Combat is loaded.
+			private static bool Prepare() => TargetMethods().All(method => method != null);
+
+			public static bool Prefix(Agent affectedAgent)
+			{
+				if (!BetterPikesSettings.Instance.CanPikemenPerformCinematicCombat && BetterPikesHelper.IsWieldingPike(affectedAgent))
+				{
+					// Disable cinematic combat for pikemen.
+					return false;
+				}
+
+				return true;
+			}
 		}
 	}
 }

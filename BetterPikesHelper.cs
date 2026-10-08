@@ -22,7 +22,7 @@ namespace BetterPikes
 
 		public static bool IsPike(MissionWeapon weapon) => !weapon.IsEmpty && weapon.GetWeaponComponentDataForUsage(0).WeaponDescriptionId != null && weapon.GetWeaponComponentDataForUsage(0).WeaponDescriptionId.Contains("Pike");
 
-		public static bool IsWieldingPike(Agent agent) => IsPike(GetWieldedWeapon(agent));
+		public static bool IsWieldingPike(Agent agent) => agent != null && IsPike(GetWieldedWeapon(agent));
 
 		public static bool IsPikeFormation(Formation formation) => formation != null && formation.GetCountOfUnitsWithCondition(agent => IsWieldingPike(agent)) >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation && formation.FiringOrder != FiringOrder.FiringOrderHoldYourFire;
 	}
