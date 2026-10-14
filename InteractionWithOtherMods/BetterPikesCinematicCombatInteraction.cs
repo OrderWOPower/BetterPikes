@@ -1,16 +1,16 @@
-﻿using HarmonyLib;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using HarmonyLib;
 using TaleWorlds.MountAndBlade;
 
-namespace BetterPikes
+namespace BetterPikes.InteractionWithOtherMods
 {
-	public class BetterPikesCinematicCombat
+	public class BetterPikesCinematicCombatInteraction
 	{
 		[HarmonyPatch]
-		public class BetterPikesCinematicCombatNpc
+		public class BetterPikesCinematicCombatInteractionNonPlayer
 		{
 			private static MethodBase TargetMethod() => AccessTools.Method(AccessTools.TypeByName("CinematicCombatMissionLogic"), "OnAgentHit");
 
@@ -30,7 +30,7 @@ namespace BetterPikes
 		}
 
 		[HarmonyPatch]
-		public class BetterPikesCinematicCombatPc
+		public class BetterPikesCinematicCombatInteractionPlayer
 		{
 			private static IEnumerable<MethodBase> TargetMethods()
 			{

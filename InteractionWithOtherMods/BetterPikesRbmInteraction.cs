@@ -1,8 +1,8 @@
 ﻿using TaleWorlds.MountAndBlade;
 
-namespace BetterPikes
+namespace BetterPikes.InteractionWithOtherMods
 {
-	public class BetterPikesAgentAi
+	public class BetterPikesRbmInteraction
 	{
 		private static bool Prefix(Agent victim)
 		{

@@ -1,5 +1,6 @@
-﻿using HarmonyLib;
-using System;
+﻿using System.Reflection;
+using BetterPikes.InteractionWithOtherMods;
+using HarmonyLib;
 using TaleWorlds.Core;
 using TaleWorlds.MountAndBlade;
 
@@ -9,7 +10,7 @@ namespace BetterPikes
 	public class BetterPikesSubModule : MBSubModuleBase
 	{
 		private Harmony _harmony;
-		private Type _typeofAgentAi;
+		private MethodBase _panicFromChargeMethod, _canAttemptMethod;
 
 		protected override void OnSubModuleLoad()
 		{
@@ -19,13 +20,18 @@ namespace BetterPikes
 
 		protected override void OnGameStart(Game game, IGameStarter gameStarterObject)
 		{
-			_typeofAgentAi = AccessTools.TypeByName("RBMAI.AgentAi");
+			_panicFromChargeMethod = AccessTools.Method(AccessTools.Inner(AccessTools.TypeByName("RBMAI.AgentAi"), "ChargeDamageCallbackPatch"), "PanicFromCharge");
+			_canAttemptMethod = AccessTools.Method(AccessTools.Inner(AccessTools.TypeByName("RBMStance.KickBash"), "AiKickBashComponent"), "CanAttempt");
 
 			// Check whether RBM is loaded.
-			if (_typeofAgentAi != null)
+			if (_panicFromChargeMethod != null)
 			{
-				_harmony.Patch(AccessTools.Method(AccessTools.Inner(_typeofAgentAi, "ChargeDamageCallbackPatch"), "PanicFromCharge"), prefix: new HarmonyMethod(AccessTools.Method(typeof(BetterPikesAgentAi), "Prefix")));
-				_harmony.Patch(AccessTools.Method(AccessTools.Inner(_typeofAgentAi, "AiKickBashComponent"), "CanAttempt"), postfix: new HarmonyMethod(AccessTools.Method(typeof(BetterPikesAgentAi), "Postfix")));
+				_harmony.Patch(_panicFromChargeMethod, prefix: new HarmonyMethod(AccessTools.Method(typeof(BetterPikesRbmInteraction), "Prefix")));
+			}
+
+			if (_canAttemptMethod != null)
+			{
+				_harmony.Patch(_canAttemptMethod, postfix: new HarmonyMethod(AccessTools.Method(typeof(BetterPikesRbmInteraction), "Postfix")));
 			}
 		}
 
@@ -39,10 +45,14 @@ namespace BetterPikes
 
 		public override void OnGameEnd(Game game)
 		{
-			if (_typeofAgentAi != null)
+			if (_panicFromChargeMethod != null)
 			{
-				_harmony.Unpatch(AccessTools.Method(AccessTools.Inner(_typeofAgentAi, "ChargeDamageCallbackPatch"), "PanicFromCharge"), AccessTools.Method(typeof(BetterPikesAgentAi), "Prefix"));
-				_harmony.Unpatch(AccessTools.Method(AccessTools.Inner(_typeofAgentAi, "AiKickBashComponent"), "CanAttempt"), AccessTools.Method(typeof(BetterPikesAgentAi), "Postfix"));
+				_harmony.Unpatch(_panicFromChargeMethod, AccessTools.Method(typeof(BetterPikesRbmInteraction), "Prefix"));
+			}
+
+			if (_canAttemptMethod != null)
+			{
+				_harmony.Unpatch(_canAttemptMethod, AccessTools.Method(typeof(BetterPikesRbmInteraction), "Postfix"));
 			}
 		}
 	}

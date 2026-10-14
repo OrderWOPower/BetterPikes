@@ -63,15 +63,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BetterPikesAgentComponent.cs" />
-    <Compile Include="BetterPikesBehaviorAdvance.cs" />
-    <Compile Include="BetterPikesBehaviorCharge.cs" />
-    <Compile Include="BetterPikesBehaviorComponent.cs" />
-    <Compile Include="BetterPikesCinematicCharges.cs" />
-    <Compile Include="BetterPikesCinematicCombat.cs" />
+    <Compile Include="FormationBehaviors\BetterPikesBehaviorAdvance.cs" />
+    <Compile Include="FormationBehaviors\BetterPikesBehaviorCharge.cs" />
+    <Compile Include="FormationBehaviors\BetterPikesBehaviorComponent.cs" />
+    <Compile Include="InteractionWithOtherMods\BetterPikesCinematicChargesInteraction.cs" />
+    <Compile Include="InteractionWithOtherMods\BetterPikesCinematicCombatInteraction.cs" />
     <Compile Include="BetterPikesCombatMechanicsHelper.cs" />
     <Compile Include="BetterPikesFormation.cs" />
     <Compile Include="BetterPikesHelper.cs" />
-    <Compile Include="BetterPikesAgentAi.cs" />
+    <Compile Include="InteractionWithOtherMods\BetterPikesRbmInteraction.cs" />
     <Compile Include="BetterPikesMissionBehavior.cs" />
     <Compile Include="BetterPikesSettings.cs" />
     <Compile Include="BetterPikesSubModule.cs" />

@@ -1,11 +1,11 @@
-﻿using HarmonyLib;
-using System.Reflection;
+﻿using System.Reflection;
+using HarmonyLib;
 using TaleWorlds.MountAndBlade;
 
-namespace BetterPikes
+namespace BetterPikes.InteractionWithOtherMods
 {
 	[HarmonyPatch]
-	public class BetterPikesCinematicCharges
+	public class BetterPikesCinematicChargesInteraction
 	{
 		private static MethodBase TargetMethod() => AccessTools.Method(AccessTools.TypeByName("CinematicChargesAgentComponent"), "TryPerformCharge");
 
