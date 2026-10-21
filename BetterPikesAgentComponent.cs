@@ -5,10 +5,19 @@ namespace BetterPikes
 {
 	public class BetterPikesAgentComponent : AgentComponent
 	{
+		private bool _shouldWalk;
+
 		public BetterPikesAgentComponent(Agent agent) : base(agent) { }
 
 		public override void OnAIInputSet(ref Agent.EventControlFlag eventFlag, ref Agent.MovementControlFlag movementFlag, ref Vec2 inputVector)
 		{
+			if (_shouldWalk)
+			{
+				// Make the pikemen walk.
+				eventFlag &= ~Agent.EventControlFlag.Run;
+				eventFlag |= Agent.EventControlFlag.Walk;
+			}
+
 			if (BetterPikesHelper.IsWieldingPike(Agent))
 			{
 				if (!BetterPikesSettings.Instance.CanPikemenBlock)
@@ -24,5 +33,7 @@ namespace BetterPikes
 				}
 			}
 		}
+
+		public void SetWalkMode(bool shouldWalk) => _shouldWalk = shouldWalk;
 	}
 }

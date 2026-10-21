@@ -51,7 +51,8 @@ namespace BetterPikes
 				{
 					Vec2 agentPosition = agent.Position.AsVec2, currentGlobalPositionOfUnit = formation.GetCurrentGlobalPositionOfUnit(agent, true);
 
-					agent.SetMaximumSpeedLimit(hasEnemy && !isLoose && (agentPosition.DistanceSquared(currentGlobalPositionOfUnit) < 1 || agentPosition.DistanceSquared(closestEnemyFormationPosition) <= closestEnemyFormationDistanceSquared) ? agent.GetMaximumForwardUnlimitedSpeed() / 2 : agent.GetMaximumForwardUnlimitedSpeed(), false);
+					agent.GetComponent<BetterPikesAgentComponent>().SetWalkMode(hasEnemy && !isLoose && (agentPosition.DistanceSquared(currentGlobalPositionOfUnit) < 1 || agentPosition.DistanceSquared(closestEnemyFormationPosition) <= closestEnemyFormationDistanceSquared));
+					agent.SetMaximumSpeedLimit(agent.GetMaximumForwardUnlimitedSpeed(), false);
 
 					if (MBRandom.RandomFloat < 0.2f)
 					{
