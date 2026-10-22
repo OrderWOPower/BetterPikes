@@ -34,6 +34,6 @@ namespace BetterPikes
 			}
 		}
 
-		public void SetWalkMode(bool shouldWalk) => _shouldWalk = shouldWalk;
+		public void ConsiderWalking(bool shouldWalk) => _shouldWalk = shouldWalk;
 	}
 }
