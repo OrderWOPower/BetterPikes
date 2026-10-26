@@ -16,7 +16,7 @@ namespace BetterPikes.FormationBehaviors
 				float deviationOfPositions = formation.CachedFormationIntegrityData.DeviationOfPositionsExcludeFarAgents;
 				Vec2 orderPosition = formation.OrderPosition;
 
-				formation.SetArrangementOrder(ArrangementOrder.ArrangementOrderShieldWall);
+				formation.SetArrangementOrder(ArrangementOrder.ArrangementOrderLine);
 
 				if (formation.ArrangementOrder != ArrangementOrder.ArrangementOrderCircle)
 				{

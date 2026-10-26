@@ -12,7 +12,7 @@ namespace BetterPikes.FormationBehaviors
 
 			if (BetterPikesHelper.IsPikeFormation(formation))
 			{
-				formation.SetArrangementOrder(ArrangementOrder.ArrangementOrderShieldWall);
+				formation.SetArrangementOrder(ArrangementOrder.ArrangementOrderLine);
 
 				if (formation.ArrangementOrder == ArrangementOrder.ArrangementOrderCircle)
 				{

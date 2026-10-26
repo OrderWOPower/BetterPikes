@@ -75,7 +75,7 @@ namespace BetterPikes
 				agent.GetComponent<BetterPikesAgentComponent>().ConsiderWalking(false);
 			}
 
-			foreach (Formation formation in Mission.Teams.SelectMany(team => team.FormationsIncludingSpecialAndEmpty.Where(f => BetterPikesHelper.IsPikeFormation(f))))
+			foreach (Formation formation in Mission.Teams.SelectMany(team => team.FormationsIncludingSpecialAndEmpty.Where(BetterPikesHelper.IsPikeFormation)))
 			{
 				float closestEnemyFormationDistanceSquared = formation.CachedClosestEnemyFormationDistanceSquared, formationWidth = formation.Width;
 				bool hasEnemy = formation.HasAnyEnemyFormationsThatIsNotEmpty(), isLoose = formation.IsLoose, isEnemyNearby = closestEnemyFormationDistanceSquared <= MathF.Pow(settings.MaxDistanceToReadyPikes, 2);
@@ -123,12 +123,12 @@ namespace BetterPikes
 						}
 					}
 
-					if (isEnemyNearby && !isLoose && BetterPikesHelper.IsWieldingPike(agent) && agent.IsAIControlled)
+					if (isEnemyNearby && BetterPikesHelper.IsWieldingPike(agent) && agent.IsAIControlled)
 					{
 						// Ensure that the pikemen maintain their formation.
 						agent.SetFormationIntegrityData(currentGlobalPositionOfUnit, formationDirection, cachedFormationIntegrityData.AverageVelocityExcludeFarAgents, cachedFormationIntegrityData.AverageMaxUnlimitedSpeedExcludeFarAgents, cachedFormationIntegrityData.DeviationOfPositionsExcludeFarAgents, true);
 
-						if (agentPosition.DistanceSquared(currentGlobalPositionOfUnit) < 1 && !settings.CanPikemenTurnSideways)
+						if (!isLoose && agentPosition.DistanceSquared(currentGlobalPositionOfUnit) < 1 && !settings.CanPikemenTurnSideways)
 						{
 							float angularDifference = formationDirection.RotationInRadians.ToDegrees() - agent.MovementDirectionAsAngle.ToDegrees();
 
