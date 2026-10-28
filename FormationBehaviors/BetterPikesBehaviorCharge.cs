@@ -17,7 +17,11 @@ namespace BetterPikes.FormationBehaviors
 				if (formation.ArrangementOrder == ArrangementOrder.ArrangementOrderCircle)
 				{
 					// If the pikemen are in circle formation, make the circle as tight as possible.
-					formation.SetPositioning(formation.CachedMedianPosition, formation.Direction, 0);
+					formation.SetPositioning(null, null, 0);
+					formation.ApplyActionOnEachUnit(delegate (Agent agent)
+					{
+						agent.ClearTargetFrame();
+					});
 				}
 			}
 		}

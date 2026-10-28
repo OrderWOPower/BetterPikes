@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using HarmonyLib;
+using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
 
 namespace BetterPikes.InteractionWithOtherMods
@@ -40,6 +41,25 @@ namespace BetterPikes.InteractionWithOtherMods
 				{
 					// Disable cinematic charges for pikemen.
 					__result = false;
+				}
+			}
+		}
+
+		public class BetterPikesCinematicChargesInteractionSprinting
+		{
+			public static void Postfix(ref bool __result, Agent agent)
+			{
+				if (!BetterPikesSettings.Instance.CanPikemenPerformCinematicCharges && BetterPikesHelper.IsPikeFormation(agent.Formation))
+				{
+					Formation formation = agent.Formation;
+					float formationWidth = formation.Width;
+					Vec2 formationPosition = formation.CachedAveragePosition, formationDirection = formation.CurrentDirection, agentVelocity = agent.MovementVelocity, agentPosition = agent.Position.AsVec2;
+
+					if (BetterPikesHelper.IsNearToFormation(agentPosition, formationPosition, formationWidth) || BetterPikesHelper.IsMovingAheadOfFormation(agentVelocity, agentPosition, formationPosition, formationDirection))
+					{
+						// Disable sprinting for pikemen.
+						__result = false;
+					}
 				}
 			}
 		}

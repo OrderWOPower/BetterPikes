@@ -23,7 +23,7 @@ namespace BetterPikes
 					else
 					{
 						// If the number of cavalry in the closest enemy formation is greater than or equal to 25% the number of pikemen, make the pikemen hold their position.
-						input = __instance.CachedFormationIntegrityData.DeviationOfPositionsExcludeFarAgents >= 0.5 ? MovementOrder.MovementOrderMove(holdPosition) : MovementOrder.MovementOrderStop;
+						input = __instance.HasUnitsWithCondition(agent => agent.MovementVelocity.y != 0) ? MovementOrder.MovementOrderMove(holdPosition) : MovementOrder.MovementOrderStop;
 					}
 				}
 				else

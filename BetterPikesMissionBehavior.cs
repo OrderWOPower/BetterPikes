@@ -77,25 +77,32 @@ namespace BetterPikes
 
 			foreach (Formation formation in Mission.Teams.SelectMany(team => team.FormationsIncludingSpecialAndEmpty.Where(BetterPikesHelper.IsPikeFormation)))
 			{
-				float closestEnemyFormationDistanceSquared = formation.CachedClosestEnemyFormationDistanceSquared, formationWidth = formation.Width;
-				bool hasEnemy = formation.HasAnyEnemyFormationsThatIsNotEmpty(), isLoose = formation.IsLoose, isEnemyNearby = closestEnemyFormationDistanceSquared <= MathF.Pow(settings.MaxDistanceToReadyPikes, 2);
-				bool isInCircleArrangement = formation.ArrangementOrder == ArrangementOrder.ArrangementOrderCircle, isInSquareArrangement = formation.ArrangementOrder == ArrangementOrder.ArrangementOrderSquare;
-				Vec2 closestEnemyFormationPosition = formation.CachedClosestEnemyFormation != null ? formation.CachedClosestEnemyFormation.Formation.CachedAveragePosition : Vec2.Invalid;
+				bool hasEnemy = formation.HasAnyEnemyFormationsThatIsNotEmpty(), isEnemyNearby = formation.CachedClosestEnemyFormationDistanceSquared <= MathF.Pow(settings.MaxDistanceToReadyPikes, 2);
+				bool isLoose = formation.IsLoose, isInCircleArrangement = formation.ArrangementOrder == ArrangementOrder.ArrangementOrderCircle, isInSquareArrangement = formation.ArrangementOrder == ArrangementOrder.ArrangementOrderSquare;
+				float formationWidth = formation.Width;
 				Vec2 formationPosition = formation.CachedAveragePosition, formationDirection = formation.CurrentDirection;
 				Formation.FormationIntegrityDataGroup cachedFormationIntegrityData = formation.CachedFormationIntegrityData;
 
 				foreach (Agent agent in formation.GetUnitsWithoutDetachedOnes().Where(a => a.IsHuman && a.IsActive()))
 				{
-					Vec2 agentPosition = agent.Position.AsVec2, currentGlobalPositionOfUnit = formation.GetCurrentGlobalPositionOfUnit(agent, true);
+					Vec2 agentVelocity = agent.MovementVelocity, agentPosition = agent.Position.AsVec2, currentGlobalPositionOfUnit = formation.GetCurrentGlobalPositionOfUnit(agent, true);
+					bool isNearToCurrentGlobalPosition = agentPosition.DistanceSquared(currentGlobalPositionOfUnit) < 1;
+					bool isNearToFormation = BetterPikesHelper.IsNearToFormation(agentPosition, formationPosition, formationWidth);
+					bool isMovingAheadOfFormation = BetterPikesHelper.IsMovingAheadOfFormation(agentVelocity, agentPosition, formationPosition, formationDirection);
 
-					agent.GetComponent<BetterPikesAgentComponent>().ConsiderWalking(hasEnemy && !isLoose && (agentPosition.DistanceSquared(currentGlobalPositionOfUnit) < 1 || agentPosition.DistanceSquared(closestEnemyFormationPosition) <= closestEnemyFormationDistanceSquared));
+					agent.GetComponent<BetterPikesAgentComponent>().ConsiderWalking(hasEnemy && !isLoose && (isNearToCurrentGlobalPosition || isMovingAheadOfFormation) && !agent.InteractingWithAnyGameObject());
 					agent.SetMaximumSpeedLimit(agent.GetMaximumForwardUnlimitedSpeed(), false);
+
+					if (!isNearToFormation)
+					{
+						agent.StopUsingGameObject();
+					}
 
 					if (MBRandom.RandomFloat < 0.2f)
 					{
 						ActionIndexCache currentAction = agent.GetCurrentAction(1);
 
-						if (((isEnemyNearby && !isLoose) || isInCircleArrangement || isInSquareArrangement) && BetterPikesHelper.IsWieldingPike(agent) && agent.IsAIControlled && !agent.IsDoingPassiveAttack && agentPosition.DistanceSquared(formationPosition) < MathF.Pow((formationWidth / 2) + 1, 2))
+						if (((isEnemyNearby && !isLoose) || isInCircleArrangement || isInSquareArrangement) && BetterPikesHelper.IsWieldingPike(agent) && agent.IsAIControlled && !agent.IsDoingPassiveAttack && isNearToFormation)
 						{
 							if (currentAction != _readyThrustActionIndex && currentAction != _guardUpActionIndex)
 							{
@@ -128,7 +135,7 @@ namespace BetterPikes
 						// Ensure that the pikemen maintain their formation.
 						agent.SetFormationIntegrityData(currentGlobalPositionOfUnit, formationDirection, cachedFormationIntegrityData.AverageVelocityExcludeFarAgents, cachedFormationIntegrityData.AverageMaxUnlimitedSpeedExcludeFarAgents, cachedFormationIntegrityData.DeviationOfPositionsExcludeFarAgents, true);
 
-						if (!isLoose && agentPosition.DistanceSquared(currentGlobalPositionOfUnit) < 1 && !settings.CanPikemenTurnSideways)
+						if (!isLoose && isNearToCurrentGlobalPosition && !settings.CanPikemenTurnSideways)
 						{
 							float angularDifference = formationDirection.RotationInRadians.ToDegrees() - agent.MovementDirectionAsAngle.ToDegrees();
 

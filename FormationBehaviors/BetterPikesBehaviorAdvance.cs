@@ -13,18 +13,18 @@ namespace BetterPikes.FormationBehaviors
 
 			if (BetterPikesHelper.IsPikeFormation(formation))
 			{
-				float deviationOfPositions = formation.CachedFormationIntegrityData.DeviationOfPositionsExcludeFarAgents;
-				Vec2 orderPosition = formation.OrderPosition;
-
 				formation.SetArrangementOrder(ArrangementOrder.ArrangementOrderLine);
 
 				if (formation.ArrangementOrder != ArrangementOrder.ArrangementOrderCircle)
 				{
+					float deviationOfPositions = formation.CachedFormationIntegrityData.DeviationOfPositionsExcludeFarAgents, underRangedAttackRatio = formation.QuerySystem.UnderRangedAttackRatio, formationWidth = formation.Width;
+					Vec2 formationPosition = formation.CachedAveragePosition, orderPosition = formation.OrderPosition;
+
 					formation.ApplyActionOnEachUnit(delegate (Agent agent)
 					{
-						Vec2 currentGlobalPositionOfUnit = formation.GetCurrentGlobalPositionOfUnit(agent, true);
+						Vec2 agentPosition = agent.Position.AsVec2, currentGlobalPositionOfUnit = formation.GetCurrentGlobalPositionOfUnit(agent, true);
 
-						if (deviationOfPositions >= 1 && agent.CanMoveDirectlyToPosition(currentGlobalPositionOfUnit) && agent.CanMoveDirectlyToPosition(orderPosition) && agent.IsAIControlled)
+						if (((deviationOfPositions >= 1 && underRangedAttackRatio < 0.25f) || !BetterPikesHelper.IsNearToFormation(agentPosition, formationPosition, formationWidth)) && agent.IsAIControlled && agent.CanMoveDirectlyToPosition(currentGlobalPositionOfUnit) && agent.CanMoveDirectlyToPosition(orderPosition) && !agent.InteractingWithAnyGameObject())
 						{
 							// Ensure that the pikemen maintain their formation.
 							agent.SetTargetPosition(currentGlobalPositionOfUnit);
@@ -38,7 +38,11 @@ namespace BetterPikes.FormationBehaviors
 				else
 				{
 					// If the pikemen are in circle formation, make the circle as tight as possible.
-					formation.SetPositioning(formation.CachedMedianPosition, formation.Direction, 0);
+					formation.SetPositioning(null, null, 0);
+					formation.ApplyActionOnEachUnit(delegate (Agent agent)
+					{
+						agent.ClearTargetFrame();
+					});
 				}
 			}
 		}

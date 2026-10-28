@@ -10,7 +10,7 @@ namespace BetterPikes
 	public class BetterPikesSubModule : MBSubModuleBase
 	{
 		private Harmony _harmony;
-		private MethodBase _panicFromChargeMethod, _canAttemptMethod;
+		private MethodBase _panicFromChargeMethod, _canAttemptMethod, _shouldSprintMethod;
 
 		protected override void OnSubModuleLoad()
 		{
@@ -22,6 +22,7 @@ namespace BetterPikes
 		{
 			_panicFromChargeMethod = AccessTools.Method(AccessTools.Inner(AccessTools.TypeByName("RBMAI.AgentAi"), "ChargeDamageCallbackPatch"), "PanicFromCharge");
 			_canAttemptMethod = AccessTools.Method(AccessTools.Inner(AccessTools.TypeByName("RBMStance.KickBash"), "AiKickBashComponent"), "CanAttempt");
+			_shouldSprintMethod = AccessTools.Method(AccessTools.TypeByName("SprintAgentComponent"), "ShouldSprint");
 
 			// Check whether RBM is loaded.
 			if (_panicFromChargeMethod != null)
@@ -32,6 +33,12 @@ namespace BetterPikes
 			if (_canAttemptMethod != null)
 			{
 				_harmony.Patch(_canAttemptMethod, postfix: new HarmonyMethod(AccessTools.Method(typeof(BetterPikesRbmInteraction), "Postfix")));
+			}
+
+			// Check whether Artem's Cinematic Charges is loaded.
+			if (_shouldSprintMethod != null)
+			{
+				_harmony.Patch(_shouldSprintMethod, postfix: new HarmonyMethod(AccessTools.Method(typeof(BetterPikesCinematicChargesInteraction.BetterPikesCinematicChargesInteractionSprinting), "Postfix")));
 			}
 		}
 
@@ -53,6 +60,11 @@ namespace BetterPikes
 			if (_canAttemptMethod != null)
 			{
 				_harmony.Unpatch(_canAttemptMethod, AccessTools.Method(typeof(BetterPikesRbmInteraction), "Postfix"));
+			}
+
+			if (_shouldSprintMethod != null)
+			{
+				_harmony.Unpatch(_shouldSprintMethod, AccessTools.Method(typeof(BetterPikesCinematicChargesInteraction.BetterPikesCinematicChargesInteractionSprinting), "Postfix"));
 			}
 		}
 	}
