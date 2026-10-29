@@ -85,12 +85,12 @@ namespace BetterPikes
 
 				foreach (Agent agent in formation.GetUnitsWithoutDetachedOnes().Where(a => a.IsHuman && a.IsActive()))
 				{
-					Vec2 agentVelocity = agent.MovementVelocity, agentPosition = agent.Position.AsVec2, currentGlobalPositionOfUnit = formation.GetCurrentGlobalPositionOfUnit(agent, true);
-					bool isNearToCurrentGlobalPosition = agentPosition.DistanceSquared(currentGlobalPositionOfUnit) < 1;
+					Vec2 agentPosition = agent.Position.AsVec2, currentGlobalPositionOfUnit = formation.GetCurrentGlobalPositionOfUnit(agent, true);
+					bool isNearToCurrentGlobalPosition = BetterPikesHelper.IsNearToCurrentGlobalPosition(agentPosition, currentGlobalPositionOfUnit);
 					bool isNearToFormation = BetterPikesHelper.IsNearToFormation(agentPosition, formationPosition, formationWidth);
-					bool isMovingAheadOfFormation = BetterPikesHelper.IsMovingAheadOfFormation(agentVelocity, agentPosition, formationPosition, formationDirection);
+					bool isAheadOfFormation = BetterPikesHelper.IsAheadOfFormation(agentPosition, formationPosition, formationDirection);
 
-					agent.GetComponent<BetterPikesAgentComponent>().ConsiderWalking(hasEnemy && !isLoose && (isNearToCurrentGlobalPosition || isMovingAheadOfFormation) && !agent.InteractingWithAnyGameObject());
+					agent.GetComponent<BetterPikesAgentComponent>().ConsiderWalking(hasEnemy && !isLoose && (isNearToCurrentGlobalPosition || isAheadOfFormation) && !agent.InteractingWithAnyGameObject());
 					agent.SetMaximumSpeedLimit(agent.GetMaximumForwardUnlimitedSpeed(), false);
 
 					if (!isNearToFormation)

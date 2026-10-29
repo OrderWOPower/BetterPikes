@@ -1,4 +1,5 @@
-﻿using TaleWorlds.MountAndBlade;
+﻿using System.Linq;
+using TaleWorlds.MountAndBlade;
 
 namespace BetterPikes.InteractionWithOtherMods
 {
@@ -15,7 +16,16 @@ namespace BetterPikes.InteractionWithOtherMods
 			return true;
 		}
 
-		private static void Postfix(ref bool __result, Agent ___Agent)
+		protected static void Postfix1(TacticComponent __instance, ref float __result)
+		{
+			if (__instance.Team.FormationsIncludingSpecialAndEmpty.Any(formation => BetterPikesHelper.IsPikeFormation(formation)))
+			{
+				// Prevent pike formations from being split.
+				__result = 0;
+			}
+		}
+
+		private static void Postfix2(ref bool __result, Agent ___Agent)
 		{
 			if (!BetterPikesSettings.Instance.CanPikemenKickBash && BetterPikesHelper.IsWieldingPike(___Agent))
 			{
