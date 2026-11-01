@@ -20,7 +20,7 @@ namespace BetterPikes.InteractionWithOtherMods
 		{
 			if (__instance.Team.FormationsIncludingSpecialAndEmpty.Any(formation => BetterPikesHelper.IsPikeFormation(formation)))
 			{
-				// Prevent pike formations from being split.
+				// Prevent pike formations from splitting.
 				__result = 0;
 			}
 		}
