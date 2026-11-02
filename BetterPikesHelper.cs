@@ -26,10 +26,8 @@ namespace BetterPikes
 
 		public static bool IsPikeFormation(Formation formation) => formation != null && formation.CountOfUnits > 0 && formation.GetCountOfUnitsWithCondition(agent => IsWieldingPike(agent)) >= formation.CountOfUnits * BetterPikesSettings.Instance.MinPikemenPercentInPikeFormation && formation.FiringOrder != FiringOrder.FiringOrderHoldYourFire;
 
-		public static bool IsNearToCurrentGlobalPosition(Vec2 agentPosition, Vec2 currentGlobalPositionOfUnit) => agentPosition.DistanceSquared(currentGlobalPositionOfUnit) < 1;
+		public static bool IsNearToFormation(Vec2 agentPosition, Vec2 formationPosition, float distance) => agentPosition.DistanceSquared(formationPosition) < MathF.Pow(distance, 2);
 
-		public static bool IsNearToFormation(Vec2 agentPosition, Vec2 formationPosition, float formationWidth) => agentPosition.DistanceSquared(formationPosition) < MathF.Pow((formationWidth / 2) + 1, 2);
-
-		public static bool IsAheadOfFormation(Vec2 agentPosition, Vec2 formationPosition, Vec2 formationDirection) => Vec2.DotProduct(agentPosition - formationPosition, formationDirection) > 0;
+		public static bool IsAheadOfFormation(Vec2 agentPosition, Vec2 formationPosition, Vec2 formationDirection, float distance) => Vec2.DotProduct(agentPosition - formationPosition, formationDirection) > distance;
 	}
 }

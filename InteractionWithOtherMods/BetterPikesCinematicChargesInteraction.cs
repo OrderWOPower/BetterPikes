@@ -15,7 +15,7 @@ namespace BetterPikes.InteractionWithOtherMods
 				float formationWidth = formation.Width;
 				Vec2 formationPosition = formation.CachedAveragePosition, formationDirection = formation.CurrentDirection, agentPosition = agent.Position.AsVec2;
 
-				if (BetterPikesHelper.IsNearToFormation(agentPosition, formationPosition, formationWidth) || BetterPikesHelper.IsAheadOfFormation(agentPosition, formationPosition, formationDirection))
+				if (BetterPikesHelper.IsNearToFormation(agentPosition, formationPosition, (formationWidth / 2) + 1) || BetterPikesHelper.IsAheadOfFormation(agentPosition, formationPosition, formationDirection, 0))
 				{
 					// Disable sprinting for pikemen.
 					__result = false;

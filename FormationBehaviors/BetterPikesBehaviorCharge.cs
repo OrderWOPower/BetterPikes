@@ -28,15 +28,15 @@ namespace BetterPikes.FormationBehaviors
 
 				if (formation.ArrangementOrder != ArrangementOrder.ArrangementOrderCircle)
 				{
+					float formationDepth = formation.Depth;
 					Vec2 formationPosition = formation.CachedAveragePosition, formationDirection = formation.CurrentDirection, orderPosition = formation.OrderPosition;
 
 					formation.ApplyActionOnEachUnit(delegate (Agent agent)
 					{
 						Vec2 agentPosition = agent.Position.AsVec2, currentGlobalPositionOfUnit = formation.GetCurrentGlobalPositionOfUnit(agent, true);
-						bool isNearToCurrentGlobalPosition = BetterPikesHelper.IsNearToCurrentGlobalPosition(agentPosition, currentGlobalPositionOfUnit);
-						bool isAheadOfFormation = BetterPikesHelper.IsAheadOfFormation(agentPosition, formationPosition, formationDirection);
+						bool isAheadOfFormation = BetterPikesHelper.IsAheadOfFormation(agentPosition, formationPosition, formationDirection, (formationDepth / 2) + 1);
 
-						if (hasEnemy && !isNearToCurrentGlobalPosition && isAheadOfFormation && agent.IsAIControlled && agent.CanMoveDirectlyToPosition(currentGlobalPositionOfUnit) && agent.CanMoveDirectlyToPosition(orderPosition) && !agent.InteractingWithAnyGameObject())
+						if (hasEnemy && isAheadOfFormation && agent.IsAIControlled && agent.CanMoveDirectlyToPosition(currentGlobalPositionOfUnit) && agent.CanMoveDirectlyToPosition(orderPosition) && !agent.InteractingWithAnyGameObject())
 						{
 							// Ensure that the pikemen maintain their formation.
 							agent.SetTargetPosition(currentGlobalPositionOfUnit);

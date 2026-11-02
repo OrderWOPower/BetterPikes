@@ -86,16 +86,16 @@ namespace BetterPikes
 				foreach (Agent agent in formation.GetUnitsWithoutDetachedOnes().Where(a => a.IsHuman && a.IsActive()))
 				{
 					Vec2 agentPosition = agent.Position.AsVec2, currentGlobalPositionOfUnit = formation.GetCurrentGlobalPositionOfUnit(agent, true);
-					bool isNearToCurrentGlobalPosition = BetterPikesHelper.IsNearToCurrentGlobalPosition(agentPosition, currentGlobalPositionOfUnit);
-					bool isNearToFormation = BetterPikesHelper.IsNearToFormation(agentPosition, formationPosition, formationWidth);
-					bool isAheadOfFormation = BetterPikesHelper.IsAheadOfFormation(agentPosition, formationPosition, formationDirection);
+					bool isNearToCurrentGlobalPosition = agentPosition.DistanceSquared(currentGlobalPositionOfUnit) < 1;
+					bool isNearToFormation = BetterPikesHelper.IsNearToFormation(agentPosition, formationPosition, (formationWidth / 2) + 1);
+					bool isAheadOfFormation = BetterPikesHelper.IsAheadOfFormation(agentPosition, formationPosition, formationDirection, 0);
 
 					agent.GetComponent<BetterPikesAgentComponent>().ConsiderWalking(hasEnemy && !isLoose && (isNearToCurrentGlobalPosition || isAheadOfFormation) && !agent.InteractingWithAnyGameObject());
 					agent.SetMaximumSpeedLimit(agent.GetMaximumForwardUnlimitedSpeed(), false);
 
 					if (agent.HumanAIComponent?.GetCurrentlyMovingGameObject() != null && agentPosition.DistanceSquared(agent.HumanAIComponent.GetCurrentlyMovingGameObject().GetUserFrameForAgent(agent).Origin.AsVec2) >= 25)
 					{
-						// Prevent pikemen from picking up items that are further than 5m.
+						// Prevent the pikemen from picking up items that are further than 5m.
 						agent.StopUsingGameObject();
 					}
 
