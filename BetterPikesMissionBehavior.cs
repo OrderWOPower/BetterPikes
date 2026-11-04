@@ -86,12 +86,11 @@ namespace BetterPikes
 				foreach (Agent agent in formation.GetUnitsWithoutDetachedOnes().Where(a => a.IsHuman && a.IsActive()))
 				{
 					Vec2 agentPosition = agent.Position.AsVec2, currentGlobalPositionOfUnit = formation.GetCurrentGlobalPositionOfUnit(agent, true);
-					bool isNearToCurrentGlobalPosition = agentPosition.DistanceSquared(currentGlobalPositionOfUnit) < 1;
-					bool isNearToFormation = BetterPikesHelper.IsNearToFormation(agentPosition, formationPosition, (formationWidth / 2) + 1);
-					bool isAheadOfFormation = BetterPikesHelper.IsAheadOfFormation(agentPosition, formationPosition, formationDirection, 0);
-					bool isBehindFormation = Vec2.DotProduct(formationPosition - agentPosition, formationDirection) > (formationDepth / 2) + 1;
+					bool isAheadOfLastRank = BetterPikesHelper.IsAheadOfPosition(agentPosition, formationPosition, formationDirection, (-formationDepth / 2) - 1);
+					bool isNearToFormation = BetterPikesHelper.IsNearToPosition(agentPosition, formationPosition, (formationWidth / 2) + 1);
+					bool isNearToCurrentPosition = BetterPikesHelper.IsNearToPosition(agentPosition, currentGlobalPositionOfUnit, 1);
 
-					agent.GetComponent<BetterPikesAgentComponent>().ConsiderWalking(hasEnemy && !isLoose && (isNearToCurrentGlobalPosition || isAheadOfFormation) && !agent.InteractingWithAnyGameObject());
+					agent.GetComponent<BetterPikesAgentComponent>().ConsiderWalking(hasEnemy && !isLoose && isAheadOfLastRank && !agent.InteractingWithAnyGameObject());
 					agent.SetMaximumSpeedLimit(agent.GetMaximumForwardUnlimitedSpeed(), false);
 
 					if (agent.HumanAIComponent?.GetCurrentlyMovingGameObject() != null && agentPosition.DistanceSquared(agent.HumanAIComponent.GetCurrentlyMovingGameObject().GetUserFrameForAgent(agent).Origin.AsVec2) >= 25)
@@ -104,7 +103,7 @@ namespace BetterPikes
 					{
 						ActionIndexCache currentAction = agent.GetCurrentAction(1);
 
-						if (((isEnemyNearby && !isLoose) || isInCircleArrangement || isInSquareArrangement) && BetterPikesHelper.IsWieldingPike(agent) && agent.IsAIControlled && !agent.IsDoingPassiveAttack && isNearToFormation && !isBehindFormation)
+						if (((isEnemyNearby && !isLoose) || isInCircleArrangement || isInSquareArrangement) && BetterPikesHelper.IsWieldingPike(agent) && agent.IsAIControlled && !agent.IsDoingPassiveAttack && isNearToFormation && isAheadOfLastRank)
 						{
 							if (currentAction != _readyThrustActionIndex && currentAction != _guardUpActionIndex)
 							{
@@ -132,12 +131,12 @@ namespace BetterPikes
 						}
 					}
 
-					if (isEnemyNearby && !isLoose && BetterPikesHelper.IsWieldingPike(agent) && agent.IsAIControlled)
+					if (isEnemyNearby && BetterPikesHelper.IsWieldingPike(agent) && agent.IsAIControlled)
 					{
 						// Ensure that the pikemen maintain their formation.
 						agent.SetFormationIntegrityData(currentGlobalPositionOfUnit, formationDirection, cachedFormationIntegrityData.AverageVelocityExcludeFarAgents, cachedFormationIntegrityData.AverageMaxUnlimitedSpeedExcludeFarAgents, cachedFormationIntegrityData.DeviationOfPositionsExcludeFarAgents, true);
 
-						if (isNearToCurrentGlobalPosition && !settings.CanPikemenTurnSideways)
+						if (!isLoose && isNearToCurrentPosition && !settings.CanPikemenTurnSideways)
 						{
 							float angularDifference = formationDirection.RotationInRadians.ToDegrees() - agent.MovementDirectionAsAngle.ToDegrees();
 

@@ -18,7 +18,7 @@ namespace BetterPikes.InteractionWithOtherMods
 
 		protected static void Postfix1(TacticComponent __instance, ref float __result)
 		{
-			if (__instance.Team.FormationsIncludingSpecialAndEmpty.Any(formation => BetterPikesHelper.IsPikeFormation(formation)))
+			if (__instance.Team.FormationsIncludingSpecialAndEmpty.Any(BetterPikesHelper.IsPikeFormation))
 			{
 				// Prevent pike formations from splitting.
 				__result = 0;

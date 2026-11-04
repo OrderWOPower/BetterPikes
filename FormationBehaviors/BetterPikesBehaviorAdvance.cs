@@ -28,19 +28,19 @@ namespace BetterPikes.FormationBehaviors
 
 				if (formation.ArrangementOrder != ArrangementOrder.ArrangementOrderCircle)
 				{
-					float deviationOfPositions = formation.CachedFormationIntegrityData.DeviationOfPositionsExcludeFarAgents, underRangedAttackRatio = formation.QuerySystem.UnderRangedAttackRatio, formationWidth = formation.Width, formationDepth = formation.Depth;
+					float deviationOfPositions = formation.CachedFormationIntegrityData.DeviationOfPositionsExcludeFarAgents, underRangedAttackRatio = formation.QuerySystem.UnderRangedAttackRatio, formationDepth = formation.Depth;
 					Vec2 formationPosition = formation.CachedAveragePosition, formationDirection = formation.CurrentDirection, orderPosition = formation.OrderPosition;
 
 					formation.ApplyActionOnEachUnit(delegate (Agent agent)
 					{
-						Vec2 agentPosition = agent.Position.AsVec2, currentGlobalPositionOfUnit = formation.GetCurrentGlobalPositionOfUnit(agent, true);
-						bool isNearToFormation = BetterPikesHelper.IsNearToFormation(agentPosition, formationPosition, (formationWidth / 2) + 1);
-						bool isAheadOfFormation = BetterPikesHelper.IsAheadOfFormation(agentPosition, formationPosition, formationDirection, (formationDepth / 2) + 1);
+						Vec2 agentPosition = agent.Position.AsVec2, currentPositionOfUnit = formation.GetCurrentGlobalPositionOfUnit(agent, true);
+						bool isAheadOfFirstRank = BetterPikesHelper.IsAheadOfPosition(agentPosition, formationPosition, formationDirection, (formationDepth / 2) + 1);
+						bool isAheadOfLastRank = BetterPikesHelper.IsAheadOfPosition(agentPosition, formationPosition, formationDirection, (-formationDepth / 2) - 1);
 
-						if (hasEnemy && ((deviationOfPositions >= 1 && underRangedAttackRatio < 0.25f) || !isNearToFormation || isAheadOfFormation) && agent.IsAIControlled && agent.CanMoveDirectlyToPosition(currentGlobalPositionOfUnit) && agent.CanMoveDirectlyToPosition(orderPosition) && !agent.InteractingWithAnyGameObject())
+						if (hasEnemy && ((deviationOfPositions >= 0.5f && underRangedAttackRatio < 0.25f) || isAheadOfFirstRank || !isAheadOfLastRank) && agent.IsAIControlled && agent.CanMoveDirectlyToPosition(currentPositionOfUnit) && agent.CanMoveDirectlyToPosition(orderPosition) && !agent.InteractingWithAnyGameObject())
 						{
 							// Ensure that the pikemen maintain their formation.
-							agent.SetTargetPosition(currentGlobalPositionOfUnit);
+							agent.SetTargetPosition(currentPositionOfUnit);
 						}
 						else
 						{

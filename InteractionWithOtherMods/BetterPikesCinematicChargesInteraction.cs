@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using HarmonyLib;
-using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
 
 namespace BetterPikes.InteractionWithOtherMods
@@ -11,16 +10,10 @@ namespace BetterPikes.InteractionWithOtherMods
 		{
 			Formation formation = agent.Formation;
 
-			if (!BetterPikesSettings.Instance.CanPikemenPerformCinematicCharges && BetterPikesHelper.IsPikeFormation(formation))
+			if (!BetterPikesSettings.Instance.CanPikemenPerformCinematicCharges && BetterPikesHelper.IsPikeFormation(formation) && BetterPikesHelper.IsAheadOfPosition(agent.Position.AsVec2, formation.CachedAveragePosition, formation.CurrentDirection, 0))
 			{
-				float formationWidth = formation.Width;
-				Vec2 formationPosition = formation.CachedAveragePosition, formationDirection = formation.CurrentDirection, agentPosition = agent.Position.AsVec2;
-
-				if (BetterPikesHelper.IsNearToFormation(agentPosition, formationPosition, (formationWidth / 2) + 1) || BetterPikesHelper.IsAheadOfFormation(agentPosition, formationPosition, formationDirection, 0))
-				{
-					// Disable sprinting for pikemen.
-					__result = false;
-				}
+				// Disable sprinting for pikemen.
+				__result = false;
 			}
 		}
 
