@@ -9,9 +9,10 @@ namespace BetterPikes.InteractionWithOtherMods
 	{
 		public static void Postfix(ref bool __result, Agent agent)
 		{
-			if (!BetterPikesSettings.Instance.CanPikemenPerformCinematicCharges && BetterPikesHelper.IsPikeFormation(agent.Formation))
+			Formation formation = agent.Formation;
+
+			if (!BetterPikesSettings.Instance.CanPikemenPerformCinematicCharges && BetterPikesHelper.IsPikeFormation(formation))
 			{
-				Formation formation = agent.Formation;
 				float formationWidth = formation.Width;
 				Vec2 formationPosition = formation.CachedAveragePosition, formationDirection = formation.CurrentDirection, agentPosition = agent.Position.AsVec2;
 
