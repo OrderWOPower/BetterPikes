@@ -1,13 +1,21 @@
-﻿using HarmonyLib;
+﻿using System.Collections.Generic;
+using System.Reflection;
+using HarmonyLib;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
 
 namespace BetterPikes.FormationBehaviors
 {
-	[HarmonyPatch(typeof(BehaviorAdvance), "TickOccasionally")]
-	public class BetterPikesBehaviorAdvance
+	[HarmonyPatch]
+	public class BetterPikesBehaviorAdvanceCharge
 	{
-		public static void Postfix(BehaviorAdvance __instance)
+		private static IEnumerable<MethodBase> TargetMethods()
+		{
+			yield return AccessTools.Method(typeof(BehaviorAdvance), "TickOccasionally");
+			yield return AccessTools.Method(typeof(BehaviorCharge), "TickOccasionally");
+		}
+
+		public static void Postfix(BehaviorComponent __instance)
 		{
 			Formation formation = __instance.Formation;
 
@@ -28,6 +36,7 @@ namespace BetterPikes.FormationBehaviors
 
 				if (formation.ArrangementOrder != ArrangementOrder.ArrangementOrderCircle)
 				{
+					bool isEnemyNearby = formation.CachedClosestEnemyFormationDistanceSquared <= MathF.Pow(BetterPikesSettings.Instance.MaxDistanceToReadyPikes, 2), isMoving = formation.CachedMovementSpeed > 0.1f, isUnderRangedAttack = formation.QuerySystem.IsUnderRangedAttack;
 					float deviationOfPositions = formation.CachedFormationIntegrityData.DeviationOfPositionsExcludeFarAgents, underRangedAttackRatio = formation.QuerySystem.UnderRangedAttackRatio, formationDepth = formation.Depth;
 					Vec2 formationPosition = formation.CachedAveragePosition, formationDirection = formation.CurrentDirection, orderPosition = formation.OrderPosition;
 
@@ -37,7 +46,7 @@ namespace BetterPikes.FormationBehaviors
 						bool isAheadOfFirstRank = BetterPikesHelper.IsAheadOfPosition(agentPosition, formationPosition, formationDirection, (formationDepth / 2) + 1);
 						bool isAheadOfLastRank = BetterPikesHelper.IsAheadOfPosition(agentPosition, formationPosition, formationDirection, (-formationDepth / 2) - 1);
 
-						if (hasEnemy && ((deviationOfPositions >= 0.5f && underRangedAttackRatio < 0.25f) || isAheadOfFirstRank || !isAheadOfLastRank) && agent.IsAIControlled && agent.CanMoveDirectlyToPosition(currentPositionOfUnit) && agent.CanMoveDirectlyToPosition(orderPosition) && !agent.InteractingWithAnyGameObject())
+						if (hasEnemy && ((!isEnemyNearby && isMoving && ((!isUnderRangedAttack && deviationOfPositions >= 0.5f) || (underRangedAttackRatio < 0.1f && deviationOfPositions >= 1f))) || isAheadOfFirstRank || !isAheadOfLastRank) && agent.IsAIControlled && agent.CanMoveDirectlyToPosition(currentPositionOfUnit) && agent.CanMoveDirectlyToPosition(orderPosition) && !agent.InteractingWithAnyGameObject())
 						{
 							// Ensure that the pikemen maintain their formation.
 							agent.SetTargetPosition(currentPositionOfUnit);

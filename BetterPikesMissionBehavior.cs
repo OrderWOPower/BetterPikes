@@ -40,6 +40,8 @@ namespace BetterPikes
 
 			foreach (Agent agent in Mission.Agents.FindAll(a => a.IsHuman && a.IsActive()))
 			{
+				BetterPikesAgentComponent agentComponent = agent.GetComponent<BetterPikesAgentComponent>();
+
 				if (BetterPikesHelper.IsWieldingPike(agent) && (agent.GetCurrentActionType(1) == Agent.ActionCodeType.ReadyMelee || agent.GetCurrentActionType(1) == Agent.ActionCodeType.ReleaseMelee) && settings.DoPikesHaveCollision)
 				{
 					float handleLength = BetterPikesHelper.GetWieldedWeapon(agent).Item.WeaponDesign.UsedPieces[2].ScaledLength, handleOffset = BetterPikesHelper.GetWieldedWeapon(agent).Item.WeaponDesign.UsedPieces[2].ScaledPieceOffset;
@@ -72,7 +74,8 @@ namespace BetterPikes
 					}
 				}
 
-				agent.GetComponent<BetterPikesAgentComponent>().ConsiderWalking(false);
+				agentComponent.ForceWalking(false);
+				agentComponent.ForceRunning(false);
 			}
 
 			foreach (Formation formation in Mission.Teams.SelectMany(team => team.FormationsIncludingSpecialAndEmpty.Where(BetterPikesHelper.IsPikeFormation)))
@@ -85,12 +88,18 @@ namespace BetterPikes
 
 				foreach (Agent agent in formation.GetUnitsWithoutDetachedOnes().Where(a => a.IsHuman && a.IsActive()))
 				{
-					Vec2 agentPosition = agent.Position.AsVec2, currentGlobalPositionOfUnit = formation.GetCurrentGlobalPositionOfUnit(agent, true);
+					BetterPikesAgentComponent agentComponent = agent.GetComponent<BetterPikesAgentComponent>();
+					Vec2 agentPosition = agent.Position.AsVec2, currentPositionOfUnit = formation.GetCurrentGlobalPositionOfUnit(agent, true);
 					bool isAheadOfLastRank = BetterPikesHelper.IsAheadOfPosition(agentPosition, formationPosition, formationDirection, (-formationDepth / 2) - 1);
 					bool isNearToFormation = BetterPikesHelper.IsNearToPosition(agentPosition, formationPosition, (formationWidth / 2) + 1);
-					bool isNearToCurrentPosition = BetterPikesHelper.IsNearToPosition(agentPosition, currentGlobalPositionOfUnit, 1);
+					bool isNearToCurrentPosition = BetterPikesHelper.IsNearToPosition(agentPosition, currentPositionOfUnit, 1);
 
-					agent.GetComponent<BetterPikesAgentComponent>().ConsiderWalking(hasEnemy && !isLoose && isAheadOfLastRank && !agent.InteractingWithAnyGameObject());
+					if (!isLoose)
+					{
+						agentComponent.ForceWalking(hasEnemy && isAheadOfLastRank && !agent.InteractingWithAnyGameObject());
+						agentComponent.ForceRunning(!isAheadOfLastRank);
+					}
+
 					agent.SetMaximumSpeedLimit(agent.GetMaximumForwardUnlimitedSpeed(), false);
 
 					if (agent.HumanAIComponent?.GetCurrentlyMovingGameObject() != null && agentPosition.DistanceSquared(agent.HumanAIComponent.GetCurrentlyMovingGameObject().GetUserFrameForAgent(agent).Origin.AsVec2) >= 25)
@@ -103,7 +112,7 @@ namespace BetterPikes
 					{
 						ActionIndexCache currentAction = agent.GetCurrentAction(1);
 
-						if (((isEnemyNearby && !isLoose) || isInCircleArrangement || isInSquareArrangement) && BetterPikesHelper.IsWieldingPike(agent) && agent.IsAIControlled && !agent.IsDoingPassiveAttack && isNearToFormation && isAheadOfLastRank)
+						if (((isEnemyNearby && !isLoose && isAheadOfLastRank) || isInCircleArrangement || isInSquareArrangement) && isNearToFormation && BetterPikesHelper.IsWieldingPike(agent) && agent.IsAIControlled && !agent.IsDoingPassiveAttack)
 						{
 							if (currentAction != _readyThrustActionIndex && currentAction != _guardUpActionIndex)
 							{
@@ -134,7 +143,7 @@ namespace BetterPikes
 					if (isEnemyNearby && BetterPikesHelper.IsWieldingPike(agent) && agent.IsAIControlled)
 					{
 						// Ensure that the pikemen maintain their formation.
-						agent.SetFormationIntegrityData(currentGlobalPositionOfUnit, formationDirection, cachedFormationIntegrityData.AverageVelocityExcludeFarAgents, cachedFormationIntegrityData.AverageMaxUnlimitedSpeedExcludeFarAgents, cachedFormationIntegrityData.DeviationOfPositionsExcludeFarAgents, true);
+						agent.SetFormationIntegrityData(currentPositionOfUnit, formationDirection, cachedFormationIntegrityData.AverageVelocityExcludeFarAgents, cachedFormationIntegrityData.AverageMaxUnlimitedSpeedExcludeFarAgents, cachedFormationIntegrityData.DeviationOfPositionsExcludeFarAgents, true);
 
 						if (!isLoose && isNearToCurrentPosition && !settings.CanPikemenTurnSideways)
 						{

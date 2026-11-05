@@ -5,7 +5,7 @@ namespace BetterPikes
 {
 	public class BetterPikesAgentComponent : AgentComponent
 	{
-		private bool _shouldWalk;
+		private bool _shouldWalk, _shouldRun;
 
 		public BetterPikesAgentComponent(Agent agent) : base(agent) { }
 
@@ -16,6 +16,13 @@ namespace BetterPikes
 				// Make the pikemen walk.
 				eventFlag &= ~Agent.EventControlFlag.Run;
 				eventFlag |= Agent.EventControlFlag.Walk;
+			}
+
+			if (_shouldRun)
+			{
+				// Make the pikemen run.
+				eventFlag &= ~Agent.EventControlFlag.Walk;
+				eventFlag |= Agent.EventControlFlag.Run;
 			}
 
 			if (BetterPikesHelper.IsWieldingPike(Agent))
@@ -34,6 +41,8 @@ namespace BetterPikes
 			}
 		}
 
-		public void ConsiderWalking(bool shouldWalk) => _shouldWalk = shouldWalk;
+		public void ForceWalking(bool shouldWalk) => _shouldWalk = shouldWalk;
+
+		public void ForceRunning(bool shouldRun) => _shouldRun = shouldRun;
 	}
 }
