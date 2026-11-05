@@ -88,7 +88,6 @@ namespace BetterPikes
 
 				foreach (Agent agent in formation.GetUnitsWithoutDetachedOnes().Where(a => a.IsHuman && a.IsActive()))
 				{
-					BetterPikesAgentComponent agentComponent = agent.GetComponent<BetterPikesAgentComponent>();
 					Vec2 agentPosition = agent.Position.AsVec2, currentPositionOfUnit = formation.GetCurrentGlobalPositionOfUnit(agent, true);
 					bool isAheadOfLastRank = BetterPikesHelper.IsAheadOfPosition(agentPosition, formationPosition, formationDirection, (-formationDepth / 2) - 1);
 					bool isNearToFormation = BetterPikesHelper.IsNearToPosition(agentPosition, formationPosition, (formationWidth / 2) + 1);
@@ -96,6 +95,8 @@ namespace BetterPikes
 
 					if (!isLoose)
 					{
+						BetterPikesAgentComponent agentComponent = agent.GetComponent<BetterPikesAgentComponent>();
+
 						agentComponent.ForceWalking(hasEnemy && isAheadOfLastRank && !agent.InteractingWithAnyGameObject());
 						agentComponent.ForceRunning(!isAheadOfLastRank);
 					}

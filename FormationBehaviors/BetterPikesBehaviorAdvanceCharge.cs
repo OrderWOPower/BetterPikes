@@ -36,7 +36,7 @@ namespace BetterPikes.FormationBehaviors
 
 				if (formation.ArrangementOrder != ArrangementOrder.ArrangementOrderCircle)
 				{
-					bool isEnemyNearby = formation.CachedClosestEnemyFormationDistanceSquared <= MathF.Pow(BetterPikesSettings.Instance.MaxDistanceToReadyPikes, 2), isMoving = formation.CachedMovementSpeed > 0.1f, isUnderRangedAttack = formation.QuerySystem.IsUnderRangedAttack;
+					bool isEnemyNearby = formation.CachedClosestEnemyFormationDistanceSquared <= MathF.Pow(BetterPikesSettings.Instance.MaxDistanceToReadyPikes, 2), isMoving = formation.CachedMovementSpeed > 0.5f, isUnderRangedAttack = formation.QuerySystem.IsUnderRangedAttack;
 					float deviationOfPositions = formation.CachedFormationIntegrityData.DeviationOfPositionsExcludeFarAgents, underRangedAttackRatio = formation.QuerySystem.UnderRangedAttackRatio, formationDepth = formation.Depth;
 					Vec2 formationPosition = formation.CachedAveragePosition, formationDirection = formation.CurrentDirection, orderPosition = formation.OrderPosition;
 
