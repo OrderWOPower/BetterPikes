@@ -80,8 +80,8 @@ namespace BetterPikes
 
 			foreach (Formation formation in Mission.Teams.SelectMany(team => team.FormationsIncludingSpecialAndEmpty.Where(BetterPikesHelper.IsPikeFormation)))
 			{
-				bool hasEnemy = formation.HasAnyEnemyFormationsThatIsNotEmpty(), isEnemyNearby = formation.CachedClosestEnemyFormationDistanceSquared <= MathF.Pow(settings.MaxDistanceToReadyPikes, 2);
-				bool isLoose = formation.IsLoose, isInCircleArrangement = formation.ArrangementOrder == ArrangementOrder.ArrangementOrderCircle, isInSquareArrangement = formation.ArrangementOrder == ArrangementOrder.ArrangementOrderSquare;
+				bool isLoose = formation.IsLoose, hasEnemy = formation.HasAnyEnemyFormationsThatIsNotEmpty(), isEnemyNearby = BetterPikesHelper.IsEnemyNearby(formation);
+				bool shouldAlwaysReadyPikes = (formation.ArrangementOrder == ArrangementOrder.ArrangementOrderCircle || formation.ArrangementOrder == ArrangementOrder.ArrangementOrderSquare) && formation.CachedCurrentVelocity.LengthSquared < 1;
 				float formationWidth = formation.Width, formationDepth = formation.Depth;
 				Vec2 formationPosition = formation.CachedAveragePosition, formationDirection = formation.CurrentDirection;
 				Formation.FormationIntegrityDataGroup cachedFormationIntegrityData = formation.CachedFormationIntegrityData;
@@ -90,7 +90,7 @@ namespace BetterPikes
 				{
 					Vec2 agentPosition = agent.Position.AsVec2, currentPositionOfUnit = formation.GetCurrentGlobalPositionOfUnit(agent, true);
 					bool isAheadOfLastRank = BetterPikesHelper.IsAheadOfPosition(agentPosition, formationPosition, formationDirection, (-formationDepth / 2) - 1);
-					bool isNearToFormation = BetterPikesHelper.IsNearToPosition(agentPosition, formationPosition, (formationWidth / 2) + 1);
+					bool isNearToFormation = BetterPikesHelper.IsNearToPosition(agentPosition, formationPosition, (MathF.Sqrt(MathF.Pow(formationWidth, 2) + MathF.Pow(formationDepth, 2)) / 2) + 1);
 					bool isNearToCurrentPosition = BetterPikesHelper.IsNearToPosition(agentPosition, currentPositionOfUnit, 1);
 
 					if (!isLoose)
@@ -113,7 +113,7 @@ namespace BetterPikes
 					{
 						ActionIndexCache currentAction = agent.GetCurrentAction(1);
 
-						if (((isEnemyNearby && !isLoose && isAheadOfLastRank) || isInCircleArrangement || isInSquareArrangement) && isNearToFormation && BetterPikesHelper.IsWieldingPike(agent) && agent.IsAIControlled && !agent.IsDoingPassiveAttack)
+						if (((isEnemyNearby && !isLoose && isAheadOfLastRank) || shouldAlwaysReadyPikes) && isNearToFormation && BetterPikesHelper.IsWieldingPike(agent) && agent.IsAIControlled && !agent.IsDoingPassiveAttack)
 						{
 							if (currentAction != _readyThrustActionIndex && currentAction != _guardUpActionIndex)
 							{

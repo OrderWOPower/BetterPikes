@@ -18,10 +18,9 @@ namespace BetterPikes
 			if (BetterPikesHelper.IsPikeFormation(formation) && formation.IsAIControlled && formation.CachedClosestEnemyFormation != null)
 			{
 				bool isThreatenedByCavalry = formation.CachedClosestEnemyFormation.Formation.GetCountOfUnitsWithCondition(agent => agent.HasMount) >= formation.CountOfUnits * 0.25f;
-				bool isDisorganized = formation.CachedFormationIntegrityData.DeviationOfPositionsExcludeFarAgents >= 0.3f;
-				bool isEnemyNearby = formation.CachedClosestEnemyFormationDistanceSquared <= MathF.Pow(BetterPikesSettings.Instance.MaxDistanceToReadyPikes, 2);
+				bool isDisorganized = formation.CachedFormationIntegrityData.DeviationOfPositionsExcludeFarAgents >= 0.3f, isEnemyNearby = BetterPikesHelper.IsEnemyNearby(formation);
 				bool isUnderSignificantRangedAttack = formation.QuerySystem.IsUnderRangedAttack && formation.QuerySystem.UnderRangedAttackRatio >= 0.1f;
-				bool hasMovingAgents = formation.HasUnitsWithCondition(agent => agent.MovementVelocity.LengthSquared != 0);
+				bool hasMovingAgents = formation.HasUnitsWithCondition(agent => agent.MovementVelocity.LengthSquared > 0);
 				bool hasObstructedAgents = formation.HasUnitsWithCondition(agent => !agent.CanMoveDirectlyToPosition(formation.GetOrderPositionOfUnit(agent).AsVec2));
 				bool hasFarAgents = formation.HasUnitsWithCondition(agent => !BetterPikesHelper.IsNearToPosition(agent.Position.AsVec2, formation.CachedAveragePosition, (formation.Width / 2) + 1));
 				bool shouldReorganize = isDisorganized && !isEnemyNearby && !isUnderSignificantRangedAttack && hasMovingAgents && !hasObstructedAgents;
@@ -31,8 +30,8 @@ namespace BetterPikes
 					if (!_holdPositions.TryGetValue(formation, out WorldPosition holdPosition))
 					{
 						float formationDepth = formation.Depth;
-						Vec2 formationDirection = formation.CurrentDirection;
 						WorldPosition formationPosition = formation.CachedMedianPosition;
+						Vec2 formationDirection = formation.CurrentDirection;
 
 						formationPosition.SetVec2(formationPosition.AsVec2 + (formationDirection * (formationDepth / 2)));
 
