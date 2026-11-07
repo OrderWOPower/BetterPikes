@@ -36,9 +36,8 @@ namespace BetterPikes.FormationBehaviors
 
 				if (formation.ArrangementOrder != ArrangementOrder.ArrangementOrderCircle)
 				{
-					bool isEnemyNearby = formation.CachedClosestEnemyFormationDistanceSquared <= MathF.Pow(BetterPikesSettings.Instance.MaxDistanceToReadyPikes, 2), isUnderRangedAttack = formation.QuerySystem.IsUnderRangedAttack;
-					float formationDepth = formation.Depth, underRangedAttackRatio = formation.QuerySystem.UnderRangedAttackRatio, deviationOfPositions = formation.CachedFormationIntegrityData.DeviationOfPositionsExcludeFarAgents;
-					Vec2 formationPosition = formation.CachedAveragePosition, formationDirection = formation.CurrentDirection, orderPosition = formation.OrderPosition;
+					float formationDepth = formation.Depth;
+					Vec2 formationPosition = formation.CachedAveragePosition, formationDirection = formation.CurrentDirection;
 
 					formation.ApplyActionOnEachUnit(delegate (Agent agent)
 					{
@@ -46,7 +45,7 @@ namespace BetterPikes.FormationBehaviors
 						bool isAheadOfFirstRank = BetterPikesHelper.IsAheadOfPosition(agentPosition, formationPosition, formationDirection, (formationDepth / 2) + 1);
 						bool isAheadOfLastRank = BetterPikesHelper.IsAheadOfPosition(agentPosition, formationPosition, formationDirection, (-formationDepth / 2) - 1);
 
-						if (hasEnemy && ((!isEnemyNearby && (!isUnderRangedAttack || underRangedAttackRatio < 0.1f) && deviationOfPositions >= 1) || isAheadOfFirstRank || !isAheadOfLastRank) && agent.IsAIControlled && agent.CanMoveDirectlyToPosition(currentPositionOfUnit) && agent.CanMoveDirectlyToPosition(orderPosition) && !agent.InteractingWithAnyGameObject())
+						if (hasEnemy && (isAheadOfFirstRank || !isAheadOfLastRank) && agent.IsAIControlled && agent.CanMoveDirectlyToPosition(currentPositionOfUnit) && !agent.InteractingWithAnyGameObject())
 						{
 							// Ensure that the pikemen maintain their formation.
 							agent.SetTargetPosition(currentPositionOfUnit);

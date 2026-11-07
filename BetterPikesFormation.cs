@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using HarmonyLib;
 using TaleWorlds.Engine;
+using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
 
 namespace BetterPikes
@@ -12,23 +13,48 @@ namespace BetterPikes
 
 		public static void Prefix1(Formation __instance, ref MovementOrder input)
 		{
-			if (BetterPikesHelper.IsPikeFormation(__instance) && __instance.IsAIControlled && __instance.CachedClosestEnemyFormation != null)
+			Formation formation = __instance;
+
+			if (BetterPikesHelper.IsPikeFormation(formation) && formation.IsAIControlled && formation.CachedClosestEnemyFormation != null)
 			{
-				if (__instance.CachedClosestEnemyFormation.Formation.GetCountOfUnitsWithCondition(agent => agent.HasMount) >= __instance.CountOfUnits * 0.25f && __instance.OrderPositionIsValid)
+				bool isThreatenedByCavalry = formation.CachedClosestEnemyFormation.Formation.GetCountOfUnitsWithCondition(agent => agent.HasMount) >= formation.CountOfUnits * 0.25f;
+				bool isDisorganized = formation.CachedFormationIntegrityData.DeviationOfPositionsExcludeFarAgents >= 0.3f;
+				bool isEnemyNearby = formation.CachedClosestEnemyFormationDistanceSquared <= MathF.Pow(BetterPikesSettings.Instance.MaxDistanceToReadyPikes, 2);
+				bool isUnderSignificantRangedAttack = formation.QuerySystem.IsUnderRangedAttack && formation.QuerySystem.UnderRangedAttackRatio >= 0.1f;
+				bool hasMovingAgents = formation.HasUnitsWithCondition(agent => agent.MovementVelocity.LengthSquared != 0);
+				bool hasObstructedAgents = formation.HasUnitsWithCondition(agent => !agent.CanMoveDirectlyToPosition(formation.GetOrderPositionOfUnit(agent).AsVec2));
+				bool hasFarAgents = formation.HasUnitsWithCondition(agent => !BetterPikesHelper.IsNearToPosition(agent.Position.AsVec2, formation.CachedAveragePosition, (formation.Width / 2) + 1));
+				bool shouldReorganize = isDisorganized && !isEnemyNearby && !isUnderSignificantRangedAttack && hasMovingAgents && !hasObstructedAgents;
+
+				if ((isThreatenedByCavalry || shouldReorganize) && formation.OrderPositionIsValid)
 				{
-					if (!_holdPositions.TryGetValue(__instance, out WorldPosition holdPosition))
+					if (!_holdPositions.TryGetValue(formation, out WorldPosition holdPosition))
 					{
-						_holdPositions.Add(__instance, __instance.CachedMedianPosition);
+						float formationDepth = formation.Depth;
+						Vec2 formationDirection = formation.CurrentDirection;
+						WorldPosition formationPosition = formation.CachedMedianPosition;
+
+						formationPosition.SetVec2(formationPosition.AsVec2 + (formationDirection * (formationDepth / 2)));
+
+						_holdPositions.Add(formation, formationPosition);
 					}
 					else
 					{
-						// If the number of cavalry in the closest enemy formation is greater than or equal to 25% the number of pikemen, make the pikemen hold their position.
-						input = __instance.HasUnitsWithCondition(agent => agent.MovementVelocity.LengthSquared != 0 || !BetterPikesHelper.IsNearToPosition(agent.Position.AsVec2, __instance.CachedAveragePosition, (__instance.Width / 2) + 1)) ? MovementOrder.MovementOrderMove(holdPosition) : MovementOrder.MovementOrderStop;
+						if (isThreatenedByCavalry)
+						{
+							// If the number of cavalry in the closest enemy formation is greater than or equal to 25% the number of pikemen, make the pikemen hold their position.
+							input = hasMovingAgents || hasFarAgents ? MovementOrder.MovementOrderMove(holdPosition) : MovementOrder.MovementOrderStop;
+						}
+						else if (shouldReorganize)
+						{
+							// If the formation is disorganized, make the pikemen hold their position.
+							input = MovementOrder.MovementOrderMove(holdPosition);
+						}
 					}
 				}
 				else
 				{
-					_holdPositions.Remove(__instance);
+					_holdPositions.Remove(formation);
 
 					// Else, make the pikemen advance.
 					input = MovementOrder.MovementOrderAdvance;
@@ -40,10 +66,12 @@ namespace BetterPikes
 		[HarmonyPatch("SetArrangementOrder")]
 		public static void Prefix2(Formation __instance, ref ArrangementOrder order)
 		{
-			if (BetterPikesHelper.IsPikeFormation(__instance) && __instance.IsAIControlled && __instance.CachedClosestEnemyFormation != null)
+			Formation formation = __instance;
+
+			if (BetterPikesHelper.IsPikeFormation(formation) && formation.IsAIControlled && formation.CachedClosestEnemyFormation != null)
 			{
 				// If the number of cavalry in the closest enemy formation is greater than or equal to 25% the number of pikemen, make the pikemen form a circle. Else, make the pikemen form a shield wall.
-				order = __instance.CachedClosestEnemyFormation.Formation.GetCountOfUnitsWithCondition(agent => agent.HasMount) >= __instance.CountOfUnits * 0.25f ? ArrangementOrder.ArrangementOrderCircle : ArrangementOrder.ArrangementOrderShieldWall;
+				order = formation.CachedClosestEnemyFormation.Formation.GetCountOfUnitsWithCondition(agent => agent.HasMount) >= formation.CountOfUnits * 0.25f ? ArrangementOrder.ArrangementOrderCircle : ArrangementOrder.ArrangementOrderShieldWall;
 			}
 		}
 
@@ -51,10 +79,26 @@ namespace BetterPikes
 		[HarmonyPatch("SetFormOrder")]
 		public static void Prefix3(Formation __instance, ref FormOrder order)
 		{
-			if (BetterPikesHelper.IsPikeFormation(__instance) && __instance.IsAIControlled && __instance.CachedClosestEnemyFormation != null)
+			Formation formation = __instance;
+
+			if (BetterPikesHelper.IsPikeFormation(formation) && formation.IsAIControlled && formation.CachedClosestEnemyFormation != null)
 			{
 				// If the number of cavalry in the closest enemy formation is greater than or equal to 25% the number of pikemen, make the pikemen form a wide formation. Else, make the pikemen form a deep formation.
-				order = __instance.CachedClosestEnemyFormation.Formation.GetCountOfUnitsWithCondition(agent => agent.HasMount) >= __instance.CountOfUnits * 0.25f ? FormOrder.FormOrderWide : FormOrder.FormOrderDeep;
+				order = formation.CachedClosestEnemyFormation.Formation.GetCountOfUnitsWithCondition(agent => agent.HasMount) >= formation.CountOfUnits * 0.25f ? FormOrder.FormOrderWide : FormOrder.FormOrderDeep;
+			}
+		}
+
+		[HarmonyPatch("SetControlledByAI")]
+		public static void Postfix(Formation __instance, bool isControlledByAI)
+		{
+			Formation formation = __instance;
+
+			if (BetterPikesHelper.IsPikeFormation(formation) && !isControlledByAI)
+			{
+				formation.ApplyActionOnEachUnit(delegate (Agent agent)
+				{
+					agent.ClearTargetFrame();
+				});
 			}
 		}
 	}
