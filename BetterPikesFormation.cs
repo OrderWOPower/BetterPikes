@@ -14,7 +14,7 @@ namespace BetterPikes
 		{
 			Formation formation = __instance;
 
-			if (BetterPikesHelper.IsPikeFormation(formation) && formation.IsAIControlled && !formation.IsDeployment && formation.CachedClosestEnemyFormation != null)
+			if (BetterPikesHelper.IsPikeFormation(formation) && formation.IsAIControlled && formation.CachedClosestEnemyFormation != null)
 			{
 				bool isThreatenedByCavalry = BetterPikesHelper.IsThreatenedByCavalry(formation);
 				bool isDisorganized = formation.CachedFormationIntegrityData.DeviationOfPositionsExcludeFarAgents >= 0.3f, isEnemyNearby = BetterPikesHelper.IsEnemyNearby(formation);
@@ -64,7 +64,7 @@ namespace BetterPikes
 		{
 			Formation formation = __instance;
 
-			if (BetterPikesHelper.IsPikeFormation(formation) && formation.IsAIControlled && !formation.IsDeployment && formation.CachedClosestEnemyFormation != null)
+			if (BetterPikesHelper.IsPikeFormation(formation) && formation.IsAIControlled && formation.CachedClosestEnemyFormation != null)
 			{
 				// If the number of cavalry in the closest enemy formation is greater than or equal to 25% the number of pikemen, make the pikemen form a circle. Else, make the pikemen form a shield wall.
 				order = BetterPikesHelper.IsThreatenedByCavalry(formation) ? ArrangementOrder.ArrangementOrderCircle : ArrangementOrder.ArrangementOrderShieldWall;
@@ -77,7 +77,7 @@ namespace BetterPikes
 		{
 			Formation formation = __instance;
 
-			if (BetterPikesHelper.IsPikeFormation(formation) && formation.IsAIControlled && !formation.IsDeployment && formation.CachedClosestEnemyFormation != null)
+			if (BetterPikesHelper.IsPikeFormation(formation) && formation.IsAIControlled && formation.CachedClosestEnemyFormation != null)
 			{
 				// If the number of cavalry in the closest enemy formation is greater than or equal to 25% the number of pikemen, make the pikemen form a wide formation. Else, make the pikemen form a deep formation.
 				order = BetterPikesHelper.IsThreatenedByCavalry(formation) ? FormOrder.FormOrderWide : FormOrder.FormOrderDeep;
