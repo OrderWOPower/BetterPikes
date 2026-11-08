@@ -21,21 +21,13 @@ namespace BetterPikes.FormationBehaviors
 
 			if (BetterPikesHelper.IsPikeFormation(formation))
 			{
-				bool hasEnemy = formation.HasAnyEnemyFormationsThatIsNotEmpty();
-
-				if (!formation.IsDeployment)
-				{
-					if (hasEnemy)
-					{
-						formation.SetMovementOrder(MovementOrder.MovementOrderAdvance);
-					}
-
-					formation.SetArrangementOrder(ArrangementOrder.ArrangementOrderLine);
-					formation.SetFormOrder(FormOrder.FormOrderWide);
-				}
+				formation.SetMovementOrder(MovementOrder.MovementOrderCharge);
+				formation.SetArrangementOrder(ArrangementOrder.ArrangementOrderLine);
+				formation.SetFormOrder(FormOrder.FormOrderWide);
 
 				if (formation.ArrangementOrder != ArrangementOrder.ArrangementOrderCircle)
 				{
+					bool hasEnemy = formation.HasAnyEnemyFormationsThatIsNotEmpty();
 					float formationDepth = formation.Depth;
 					Vec2 formationPosition = formation.CachedAveragePosition, formationDirection = formation.CurrentDirection;
 
