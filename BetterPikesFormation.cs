@@ -38,7 +38,7 @@ namespace BetterPikes
 					{
 						if (isThreatenedByCavalry)
 						{
-							// If the number of cavalry in the closest enemy formation is greater than or equal to 25% the number of pikemen, make the pikemen hold their position.
+							// If the formation is threatened by cavalry, make the pikemen hold their position.
 							input = hasMovingAgents || hasFarAgents ? MovementOrder.MovementOrderMove(holdPosition) : MovementOrder.MovementOrderStop;
 						}
 						else if (shouldReorganize)
@@ -66,7 +66,7 @@ namespace BetterPikes
 
 			if (BetterPikesHelper.IsPikeFormation(formation) && formation.IsAIControlled && formation.CachedClosestEnemyFormation != null)
 			{
-				// If the number of cavalry in the closest enemy formation is greater than or equal to 25% the number of pikemen, make the pikemen form a circle. Else, make the pikemen form a shield wall.
+				// If the formation is threatened by cavalry, make the pikemen form a circle. Else, make the pikemen form a shield wall.
 				order = BetterPikesHelper.IsThreatenedByCavalry(formation) ? ArrangementOrder.ArrangementOrderCircle : ArrangementOrder.ArrangementOrderShieldWall;
 			}
 		}
@@ -79,7 +79,7 @@ namespace BetterPikes
 
 			if (BetterPikesHelper.IsPikeFormation(formation) && formation.IsAIControlled && formation.CachedClosestEnemyFormation != null)
 			{
-				// If the number of cavalry in the closest enemy formation is greater than or equal to 25% the number of pikemen, make the pikemen form a wide formation. Else, make the pikemen form a deep formation.
+				// If the formation is threatened by cavalry, make the pikemen form a wide formation. Else, make the pikemen form a deep formation.
 				order = BetterPikesHelper.IsThreatenedByCavalry(formation) ? FormOrder.FormOrderWide : FormOrder.FormOrderDeep;
 			}
 		}
@@ -89,12 +89,20 @@ namespace BetterPikes
 		{
 			Formation formation = __instance;
 
-			if (BetterPikesHelper.IsPikeFormation(formation) && !isControlledByAI)
+			if (BetterPikesHelper.IsPikeFormation(formation))
 			{
-				formation.ApplyActionOnEachUnit(delegate (Agent agent)
+				if (isControlledByAI)
 				{
-					agent.ClearTargetFrame();
-				});
+					formation.SetArrangementOrder(ArrangementOrder.ArrangementOrderShieldWall);
+					formation.SetFormOrder(FormOrder.FormOrderDeep);
+				}
+				else
+				{
+					formation.ApplyActionOnEachUnit(delegate (Agent agent)
+					{
+						agent.ClearTargetFrame();
+					});
+				}
 			}
 		}
 	}

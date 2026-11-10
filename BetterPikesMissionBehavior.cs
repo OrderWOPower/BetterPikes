@@ -42,6 +42,9 @@ namespace BetterPikes
 			{
 				BetterPikesAgentComponent agentComponent = agent.GetComponent<BetterPikesAgentComponent>();
 
+				agentComponent.ForceWalking(false);
+				agentComponent.ForceRunning(false);
+
 				if (BetterPikesHelper.IsWieldingPike(agent) && (agent.GetCurrentActionType(1) == Agent.ActionCodeType.ReadyMelee || agent.GetCurrentActionType(1) == Agent.ActionCodeType.ReleaseMelee) && settings.DoPikesHaveCollision)
 				{
 					float handleLength = BetterPikesHelper.GetWieldedWeapon(agent).Item.WeaponDesign.UsedPieces[2].ScaledLength, handleOffset = BetterPikesHelper.GetWieldedWeapon(agent).Item.WeaponDesign.UsedPieces[2].ScaledPieceOffset;
@@ -73,9 +76,6 @@ namespace BetterPikes
 						collidedAgent.RegisterBlow(blow, attackCollisionDataForDebugPurpose);
 					}
 				}
-
-				agentComponent.ForceWalking(false);
-				agentComponent.ForceRunning(false);
 			}
 
 			foreach (Formation formation in Mission.Teams.SelectMany(team => team.FormationsIncludingSpecialAndEmpty.Where(BetterPikesHelper.IsPikeFormation)))

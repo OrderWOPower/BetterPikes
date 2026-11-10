@@ -54,8 +54,6 @@ namespace BetterPikes.FormationBehaviors
 				}
 				else
 				{
-					// If the pikemen are in circle formation, make the circle as tight as possible.
-					formation.SetPositioning(null, null, 0);
 					formation.ApplyActionOnEachUnit(delegate (Agent agent)
 					{
 						agent.ClearTargetFrame();
