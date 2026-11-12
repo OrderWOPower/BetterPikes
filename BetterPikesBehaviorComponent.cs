@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using TaleWorlds.MountAndBlade;
 
-namespace BetterPikes.FormationBehaviors
+namespace BetterPikes
 {
 	[HarmonyPatch(typeof(BehaviorComponent), "OnBehaviorActivated")]
 	public class BetterPikesBehaviorComponent

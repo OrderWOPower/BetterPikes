@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Linq;
+using System.Reflection;
 using BetterPikes.InteractionWithOtherMods;
 using HarmonyLib;
 using TaleWorlds.Core;
@@ -48,6 +49,12 @@ namespace BetterPikes
 
 			_harmony.Unpatch(AccessTools.Method(typeof(Formation), "SetMovementOrder"), AccessTools.Method(typeof(BetterPikesFormation), "Prefix1"));
 			_harmony.Patch(AccessTools.Method(typeof(Formation), "SetMovementOrder"), prefix: new HarmonyMethod(AccessTools.Method(typeof(BetterPikesFormation), "Prefix1"), after: new string[] { "com.rbmai" }));
+
+			foreach (MethodBase method in AccessTools.AllTypes().Where(type => type.IsSubclassOf(typeof(BehaviorComponent))).Select(type => AccessTools.Method(type, "TickOccasionally")).Where(method => method.DeclaringType != method.GetBaseDefinition().DeclaringType))
+			{
+				_harmony.Unpatch(method, AccessTools.Method(typeof(BetterPikesBehavior), "Postfix"));
+				_harmony.Patch(method, postfix: new HarmonyMethod(AccessTools.Method(typeof(BetterPikesBehavior), "Postfix")));
+			}
 		}
 
 		public override void OnGameEnd(Game game)

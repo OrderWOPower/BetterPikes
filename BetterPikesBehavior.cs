@@ -1,20 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Reflection;
-using HarmonyLib;
-using TaleWorlds.Library;
+﻿using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
 
-namespace BetterPikes.FormationBehaviors
+namespace BetterPikes
 {
-	[HarmonyPatch]
-	public class BetterPikesBehaviorAdvanceCharge
+	public class BetterPikesBehavior
 	{
-		private static IEnumerable<MethodBase> TargetMethods()
-		{
-			yield return AccessTools.Method(typeof(BehaviorAdvance), "TickOccasionally");
-			yield return AccessTools.Method(typeof(BehaviorCharge), "TickOccasionally");
-		}
-
 		public static void Postfix(BehaviorComponent __instance)
 		{
 			Formation formation = __instance.Formation;

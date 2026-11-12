@@ -10,7 +10,7 @@ namespace BetterPikes.InteractionWithOtherMods
 		{
 			Formation formation = agent.Formation;
 
-			if (!BetterPikesSettings.Instance.CanPikemenPerformCinematicCharges && BetterPikesHelper.IsPikeFormation(formation) && BetterPikesHelper.IsAheadOfPosition(agent.Position.AsVec2, formation.CachedAveragePosition, formation.CurrentDirection, 0))
+			if (BetterPikesHelper.IsPikeFormation(formation) && BetterPikesHelper.IsAheadOfPosition(agent.Position.AsVec2, formation.CachedAveragePosition, formation.CurrentDirection, 0) && !BetterPikesSettings.Instance.CanPikemenPerformCinematicCharges)
 			{
 				// Disable sprinting for pikemen.
 				__result = false;
@@ -27,7 +27,7 @@ namespace BetterPikes.InteractionWithOtherMods
 
 			private static bool Prefix(Agent agent)
 			{
-				if (!BetterPikesSettings.Instance.CanPikemenPerformCinematicCharges && BetterPikesHelper.IsWieldingPike(agent))
+				if (BetterPikesHelper.IsWieldingPike(agent) && !BetterPikesSettings.Instance.CanPikemenPerformCinematicCharges)
 				{
 					// Disable cinematic charges for pikemen.
 					return false;
@@ -47,7 +47,7 @@ namespace BetterPikes.InteractionWithOtherMods
 
 			private static void Postfix(ref bool __result, Agent agent)
 			{
-				if (!BetterPikesSettings.Instance.CanPikemenPerformCinematicCharges && BetterPikesHelper.IsWieldingPike(agent))
+				if (BetterPikesHelper.IsWieldingPike(agent) && !BetterPikesSettings.Instance.CanPikemenPerformCinematicCharges)
 				{
 					// Disable cinematic charges for pikemen.
 					__result = false;

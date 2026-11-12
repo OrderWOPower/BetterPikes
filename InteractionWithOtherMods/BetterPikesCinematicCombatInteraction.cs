@@ -19,7 +19,7 @@ namespace BetterPikes.InteractionWithOtherMods
 
 			public static bool Prefix(MissionWeapon affectorWeapon)
 			{
-				if (!BetterPikesSettings.Instance.CanPikemenPerformCinematicCombat && BetterPikesHelper.IsPike(affectorWeapon))
+				if (BetterPikesHelper.IsPike(affectorWeapon) && !BetterPikesSettings.Instance.CanPikemenPerformCinematicCombat)
 				{
 					// Disable cinematic combat for pikemen.
 					return false;
@@ -44,7 +44,7 @@ namespace BetterPikes.InteractionWithOtherMods
 
 			public static bool Prefix(Agent affectedAgent)
 			{
-				if (!BetterPikesSettings.Instance.CanPikemenPerformCinematicCombat && BetterPikesHelper.IsWieldingPike(affectedAgent))
+				if (BetterPikesHelper.IsWieldingPike(affectedAgent) && !BetterPikesSettings.Instance.CanPikemenPerformCinematicCombat)
 				{
 					// Disable cinematic combat for pikemen.
 					return false;

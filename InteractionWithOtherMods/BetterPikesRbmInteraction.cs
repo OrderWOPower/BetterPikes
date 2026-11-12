@@ -6,7 +6,7 @@ namespace BetterPikes.InteractionWithOtherMods
 	{
 		private static bool Prefix(Agent victim)
 		{
-			if (!BetterPikesSettings.Instance.CanPikemenPanicFromCharge && BetterPikesHelper.IsPikeFormation(victim.Formation))
+			if (BetterPikesHelper.IsPikeFormation(victim.Formation) && !BetterPikesSettings.Instance.CanPikemenPanicFromCharge)
 			{
 				// Exclude pikemen from panicking due to cavalry charges.
 				return false;
@@ -17,7 +17,7 @@ namespace BetterPikes.InteractionWithOtherMods
 
 		private static void Postfix(ref bool __result, Agent ___Agent)
 		{
-			if (!BetterPikesSettings.Instance.CanPikemenKickBash && BetterPikesHelper.IsWieldingPike(___Agent))
+			if (BetterPikesHelper.IsWieldingPike(___Agent) && !BetterPikesSettings.Instance.CanPikemenKickBash)
 			{
 				// Disable kicking and bashing for pikemen.
 				__result = false;

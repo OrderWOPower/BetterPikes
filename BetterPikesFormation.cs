@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using HarmonyLib;
+﻿using HarmonyLib;
 using TaleWorlds.Engine;
 using TaleWorlds.MountAndBlade;
 
@@ -8,8 +7,6 @@ namespace BetterPikes
 	[HarmonyPatch(typeof(Formation))]
 	public class BetterPikesFormation
 	{
-		private static readonly Dictionary<Formation, WorldPosition> _holdPositions = new Dictionary<Formation, WorldPosition>();
-
 		public static void Prefix1(Formation __instance, ref MovementOrder input)
 		{
 			Formation formation = __instance;
@@ -23,35 +20,26 @@ namespace BetterPikes
 				bool hasObstructedAgents = formation.HasUnitsWithCondition(agent => !agent.CanMoveDirectlyToPosition(formation.GetOrderPositionOfUnit(agent).AsVec2));
 				bool hasFarAgents = formation.HasUnitsWithCondition(agent => !BetterPikesHelper.IsNearToPosition(agent.Position.AsVec2, formation.CachedAveragePosition, (formation.Width / 2) + 1));
 				bool shouldReorganize = isDisorganized && !isEnemyNearby && !isUnderSignificantRangedAttack && hasMovingAgents && !hasObstructedAgents;
+				WorldPosition holdPosition = formation.CreateNewOrderWorldPosition(WorldPosition.WorldPositionEnforcedCache.None);
 
-				if ((isThreatenedByCavalry || shouldReorganize) && formation.OrderPositionIsValid)
+				if (!BetterPikesHelper.IsNearToPosition(formation.OrderPosition, formation.CachedAveragePosition, formation.Width / 2))
 				{
-					if (!_holdPositions.TryGetValue(formation, out WorldPosition holdPosition))
-					{
-						WorldPosition formationPosition = formation.CachedMedianPosition;
+					holdPosition = formation.CachedMedianPosition;
+					holdPosition.SetVec2(holdPosition.AsVec2 + (formation.CurrentDirection * (formation.Depth / 2)));
+				}
 
-						formationPosition.SetVec2(formationPosition.AsVec2 + (formation.CurrentDirection * (formation.Depth / 2)));
-
-						_holdPositions.Add(formation, formationPosition);
-					}
-					else
-					{
-						if (isThreatenedByCavalry)
-						{
-							// If the formation is threatened by cavalry, make the pikemen hold their position.
-							input = hasMovingAgents || hasFarAgents ? MovementOrder.MovementOrderMove(holdPosition) : MovementOrder.MovementOrderStop;
-						}
-						else if (shouldReorganize)
-						{
-							// If the formation is disorganized, make the pikemen hold their position.
-							input = MovementOrder.MovementOrderMove(holdPosition);
-						}
-					}
+				if (isThreatenedByCavalry)
+				{
+					// If the formation is threatened by cavalry, make the pikemen hold their position.
+					input = hasMovingAgents || hasFarAgents ? MovementOrder.MovementOrderMove(holdPosition) : MovementOrder.MovementOrderStop;
+				}
+				else if (shouldReorganize)
+				{
+					// If the formation is disorganized, make the pikemen hold their position.
+					input = MovementOrder.MovementOrderMove(holdPosition);
 				}
 				else
 				{
-					_holdPositions.Remove(formation);
-
 					// Else, make the pikemen advance.
 					input = MovementOrder.MovementOrderAdvance;
 				}

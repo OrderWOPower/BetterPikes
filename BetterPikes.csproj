@@ -64,8 +64,8 @@
   <ItemGroup>
     <Compile Include="BetterPikesAgentComponent.cs" />
     <Compile Include="BetterPikesArrangementOrder.cs" />
-    <Compile Include="FormationBehaviors\BetterPikesBehaviorAdvanceCharge.cs" />
-    <Compile Include="FormationBehaviors\BetterPikesBehaviorComponent.cs" />
+    <Compile Include="BetterPikesBehavior.cs" />
+    <Compile Include="BetterPikesBehaviorComponent.cs" />
     <Compile Include="InteractionWithOtherMods\BetterPikesCinematicChargesInteraction.cs" />
     <Compile Include="InteractionWithOtherMods\BetterPikesCinematicCombatInteraction.cs" />
     <Compile Include="BetterPikesCombatMechanicsHelper.cs" />
