@@ -58,7 +58,7 @@ namespace BetterPikes
 					bool isLoose = formation.IsLoose, hasEnemy = formation.HasAnyEnemyFormationsThatIsNotEmpty(), isEnemyNearby = BetterPikesHelper.IsEnemyNearby(formation);
 					bool shouldAlwaysReadyPikes = (formation.ArrangementOrder == ArrangementOrder.ArrangementOrderCircle || formation.ArrangementOrder == ArrangementOrder.ArrangementOrderSquare) && formation.CachedCurrentVelocity.LengthSquared < 1;
 					float formationWidth = formation.Width, formationDepth = formation.Depth;
-					Vec2 formationPosition = formation.CachedAveragePosition, formationDirection = formation.CurrentDirection;
+					Vec2 formationPosition = formation.CachedAveragePosition, formationOrderPosition = formation.OrderPosition, formationDirection = formation.CurrentDirection;
 					Formation.FormationIntegrityDataGroup cachedFormationIntegrityData = formation.CachedFormationIntegrityData;
 
 					foreach (Agent agent in formation.GetUnitsWithoutDetachedOnes().Where(a => a.IsHuman && a.IsActive()))
@@ -126,7 +126,7 @@ namespace BetterPikes
 
 							if (!isLoose && isNearToCurrentPosition && !BetterPikesSettings.Instance.CanPikemenTurnSideways)
 							{
-								float angularDifference = formationDirection.RotationInRadians.ToDegrees() - agent.MovementDirectionAsAngle.ToDegrees();
+								float angularDifference = (formationOrderPosition - formationPosition).RotationInRadians.ToDegrees() - agent.MovementDirectionAsAngle.ToDegrees();
 
 								angularDifference = ((((angularDifference + 180) % 360) + 360) % 360) - 180;
 
